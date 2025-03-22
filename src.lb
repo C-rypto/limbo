@@ -1,3 +1,3 @@
 (1+ 2)/( 3*4)
-var abc
+var abc = 123
 out abc

@@ -1,0 +1,26 @@
+Root	->	Seq
+
+Seq		->	Stmt Seq'
+Seq'	->	Stmt
+		|	$
+
+Stmt	->	var <idt> = Expr
+		|	out Expr
+
+Expr	->	Expr Expr'
+		|	Expr Expr'
+		|	Term
+Expr'	->	+ Term Expr'
+		|	- Term Expr'
+		|	$
+
+Term	->	Term Term'
+		|	Term Term'
+		|	Atom
+Term'	->	* Atom Term'
+		|	/ Atom Term'
+		|	$
+
+Atom	->	( Expr )
+		|	<val>
+		|	<idt>

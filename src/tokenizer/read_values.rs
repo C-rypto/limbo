@@ -1,6 +1,6 @@
 use std::str::Chars;
 
-use crate::common::Literal;
+use crate::common::values::Value;
 
 pub fn is_identi(ch: char) -> bool {
     return ch.is_ascii_alphanumeric() || ch == '_';
@@ -21,7 +21,7 @@ pub fn read_unknow(chars: &mut Chars, first: char, line: i32) -> (char, String, 
     return ('\0', value, line);
 }
 
-pub fn read_string(chars: &mut Chars, line: i32) -> (char, Literal, i32) {
+pub fn read_string(chars: &mut Chars, line: i32) -> (char, Value, i32) {
     fn convert(ch: char) -> char {
         match ch {
             't' => '\t',
@@ -47,10 +47,10 @@ pub fn read_string(chars: &mut Chars, line: i32) -> (char, Literal, i32) {
         }
     }
 
-    return ('\0', Literal::String(value), line);
+    return ('\0', Value::String(value), line);
 }
 
-pub fn read_number(chars: &mut Chars, first: char, line: i32) -> (char, Literal, i32) {
+pub fn read_number(chars: &mut Chars, first: char, line: i32) -> (char, Value, i32) {
     fn convert(ch: char) -> f64 {
         const START_POINT: u8 = 48;
         return ((ch as u8) - START_POINT) as f64;
@@ -77,7 +77,7 @@ pub fn read_number(chars: &mut Chars, first: char, line: i32) -> (char, Literal,
         }
     }
 
-    return (cache, Literal::Number(value), line);
+    return (cache, Value::Number(value), line);
 }
 
 pub fn read_identi(chars: &mut Chars, first: char, line: i32) -> (char, String, i32) {

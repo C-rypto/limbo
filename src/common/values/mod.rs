@@ -1,12 +1,12 @@
 use colored::Colorize;
 
-#[derive(Clone)]
-pub enum Literal {
+#[derive(Clone, PartialEq)]
+pub enum Value {
     Number(f64),
     String(String),
 }
 
-impl core::fmt::Display for Literal {
+impl core::fmt::Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Number(number) => write!(

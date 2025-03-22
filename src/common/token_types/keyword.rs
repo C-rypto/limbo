@@ -1,6 +1,6 @@
 use colored::Colorize;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Keyword {
     Var,
     Out,

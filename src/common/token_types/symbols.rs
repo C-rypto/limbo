@@ -1,11 +1,13 @@
 use colored::Colorize;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Symbol {
     Add,
     Sub,
     Mul,
     Div,
+
+    Equal,
 
     LParen,
     RParen,
@@ -22,11 +24,12 @@ impl Symbol {
     }
 }
 
-pub static SYMBOL_PAIR: [(char, Symbol); 6] = [
+pub static SYMBOL_PAIR: [(char, Symbol); 7] = [
     ('+', Symbol::Add),
     ('-', Symbol::Sub),
     ('*', Symbol::Mul),
     ('/', Symbol::Div),
+    ('=', Symbol::Equal),
     ('(', Symbol::LParen),
     (')', Symbol::RParen),
 ];
@@ -38,6 +41,8 @@ impl core::fmt::Display for Symbol {
             Self::Sub => write!(f, "{}", "-".white()),
             Self::Mul => write!(f, "{}", "*".white()),
             Self::Div => write!(f, "{}", "/".white()),
+
+            Self::Equal => write!(f, "{}", "=".white()),
 
             Self::LParen => write!(f, "{}", "(".white()),
             Self::RParen => write!(f, "{}", ")".white()),

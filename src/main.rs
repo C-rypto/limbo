@@ -1,5 +1,6 @@
 use std::{env, fs, io::Write};
 
+mod analyzer;
 mod common;
 mod tokenizer;
 
@@ -13,10 +14,10 @@ fn main() {
     }
 
     let tokens = tokenizer::tokenize(&src);
-	print!("tokens: \n\t");
+    print!("tokens: \n\t");
     for token in tokens {
         print!("{} ", token);
     }
-	print!("\n");
-	std::io::stdout().flush().unwrap();
+    print!("\n");
+    std::io::stdout().flush().unwrap();
 }
