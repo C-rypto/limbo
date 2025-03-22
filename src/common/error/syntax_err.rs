@@ -1,5 +1,7 @@
 use colored::Colorize;
 
+use crate::common::Token;
+
 pub fn report<MSG>(msg: MSG) -> !
 where
     MSG: ToString,
@@ -13,7 +15,7 @@ where
 
 pub enum ErrorType {
     NotExpected { need: String, get: Option<String> },
-    TooManyParen,
+    UnknownToken { what: String, line: i32 },
 }
 
 pub fn not_expected<TS>(need: TS, get: Option<TS>) -> ErrorType
@@ -32,6 +34,13 @@ where
     }
 }
 
+pub fn unknown_token(token: Token) -> ErrorType {
+    if let Token::Unknown(what, line) = token {
+        return ErrorType::UnknownToken { what, line };
+    }
+    unreachable!()
+}
+
 impl core::fmt::Display for ErrorType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -39,7 +48,10 @@ impl core::fmt::Display for ErrorType {
                 Some(next) => write!(f, "Expected `{}` but get `{}`.", need, next),
                 None => write!(f, "Expected `{}` but get Nothing.", need),
             },
-            Self::TooManyParen => write!(f, "Have too many parens."),
+            Self::UnknownToken { what, line } => {
+                write!(f, "Unknown token `{}` at line {}", what, line)
+            }
+            // Self::TooManyParen => write!(f, "Have too many parens."),
         }
     }
 }

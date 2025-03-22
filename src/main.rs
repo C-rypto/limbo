@@ -13,10 +13,18 @@ fn main() {
         src = fs::read_to_string(path).expect("无法正常读取文件！");
     }
 
-    let tokens = tokenizer::tokenize(&src);
+    let mut tokens = tokenizer::tokenize(&src);
     print!("tokens: \n\t");
-    for token in tokens {
+    for token in &tokens {
         print!("{} ", token);
+    }
+    print!("\n");
+    std::io::stdout().flush().unwrap();
+
+    let ast_tree = analyzer::analyze(&mut tokens);
+    print!(" nodes: \n\t");
+    for node in ast_tree.sequence.elements {
+        print!("{} ", node);
     }
     print!("\n");
     std::io::stdout().flush().unwrap();

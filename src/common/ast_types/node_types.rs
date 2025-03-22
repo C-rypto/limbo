@@ -1,4 +1,4 @@
-use crate::common::values::Value;
+use crate::common::{values::Value, Symbol, Token};
 
 use super::ast_node::ASTStream;
 
@@ -9,12 +9,37 @@ pub struct SeqNode {
 
 #[derive(Clone, PartialEq)]
 pub enum StmtNode {
-    Var(/* 符号表条目 */),
-    Out(ExprNode),
+    Var(String),
+    Out(Box<ExprNode>),
 }
 
 #[derive(Clone, PartialEq)]
-pub struct ExprNode {
-    pub elements: ASTStream,
-    pub value: Option<Value>,
+pub enum ExprNode {
+    Atom(Box<AtomNode>),
+    Term(Box<TermNode>),
+    Expr(ASTStream),
+}
+
+impl From<Token> for  ExprNode {
+	fn from(value: Token) -> Self {
+		match value {
+			Token::Identif(idt) => ExprNode::Atom(Box::new(AtomNode::Idt(idt))),
+			Token::Literal(val) => ExprNode::Atom(Box::new(AtomNode::Val(val))),
+			T
+		}
+	}
+}
+
+#[derive(Clone, PartialEq)]
+pub enum AtomNode {
+    Val(Value),
+    Idt(String),
+    Expr(Box<ExprNode>),
+}
+
+#[derive(Clone, PartialEq)]
+pub struct TermNode {
+    pub left: Box<ExprNode>,
+    pub oper: Symbol,
+    pub right: Box<ExprNode>,
 }
