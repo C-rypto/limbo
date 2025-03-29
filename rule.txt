@@ -7,18 +7,16 @@ Seq'	->	Stmt
 Stmt	->	var <idt> = Expr
 		|	out Expr
 
-Expr	->	Expr Expr'
-		|	Expr Expr'
-		|	Term
-Expr'	->	+ Term Expr'
-		|	- Term Expr'
+Expr	->	Term Expr'
+		|	Term Expr'
+Expr'	->	+ Expr
+		|	- Expr
 		|	$
 
-Term	->	Term Term'
-		|	Term Term'
-		|	Atom
-Term'	->	* Atom Term'
-		|	/ Atom Term'
+Term	->	Atom Term'
+		|	Atom Term'
+Term'	->	* Term
+		|	/ Term
 		|	$
 
 Atom	->	( Expr )

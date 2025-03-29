@@ -2,55 +2,53 @@ use colored::Colorize;
 
 use crate::common::Token;
 
-pub fn report<MSG>(msg: MSG) -> !
+pub fn report<MSG>(msg: MSG, file: &'static str, line: u32) -> !
 where
     MSG: ToString,
 {
     panic!(
-        "{} {}",
+        "{} at {}:{} {}",
         "Syntax-Error".red().bold(),
+        file,
+        line,
         msg.to_string().white()
     )
 }
 
 pub enum ErrorType {
-    NotExpected { need: String, get: Option<String> },
-    UnknownToken { what: String, line: i32 },
+    UnExpected { get: String },
+    UnknownTok { what: String, line: i32 },
+    IllegalEOF,
 }
 
-pub fn not_expected<TS>(need: TS, get: Option<TS>) -> ErrorType
+pub fn unexpected<TS>(get: TS) -> ErrorType
 where
     TS: ToString,
 {
-    match get {
-        Some(get) => ErrorType::NotExpected {
-            need: need.to_string(),
-            get: Some(get.to_string()),
-        },
-        None => ErrorType::NotExpected {
-            need: need.to_string(),
-            get: None,
-        },
-    }
+    return ErrorType::UnExpected {
+        get: get.to_string(),
+    };
 }
 
-pub fn unknown_token(token: Token) -> ErrorType {
+pub fn unknown_tok(token: Token) -> ErrorType {
     if let Token::Unknown(what, line) = token {
-        return ErrorType::UnknownToken { what, line };
+        return ErrorType::UnknownTok { what, line };
     }
     unreachable!()
+}
+
+pub fn illegal_eof() -> ErrorType {
+    ErrorType::IllegalEOF
 }
 
 impl core::fmt::Display for ErrorType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NotExpected { need, get } => match get {
-                Some(next) => write!(f, "Expected `{}` but get `{}`.", need, next),
-                None => write!(f, "Expected `{}` but get Nothing.", need),
-            },
-            Self::UnknownToken { what, line } => {
+            Self::UnExpected { get } => write!(f, "`{}` is not the expected token.", get),
+            Self::UnknownTok { what, line } => {
                 write!(f, "Unknown token `{}` at line {}", what, line)
             }
+            Self::IllegalEOF => write!(f, "Illegal EOF!"),
             // Self::TooManyParen => write!(f, "Have too many parens."),
         }
     }

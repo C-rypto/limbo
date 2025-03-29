@@ -1,5 +1,3 @@
-use colored::Colorize;
-
 #[derive(Clone, PartialEq)]
 pub enum Symbol {
     Add,
@@ -37,15 +35,15 @@ pub static SYMBOL_PAIR: [(char, Symbol); 7] = [
 impl core::fmt::Display for Symbol {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Add => write!(f, "{}", "+".white()),
-            Self::Sub => write!(f, "{}", "-".white()),
-            Self::Mul => write!(f, "{}", "*".white()),
-            Self::Div => write!(f, "{}", "/".white()),
+            Self::Add => write!(f, "{}", "+"),
+            Self::Sub => write!(f, "{}", "-"),
+            Self::Mul => write!(f, "{}", "*"),
+            Self::Div => write!(f, "{}", "/"),
 
-            Self::Equal => write!(f, "{}", "=".white()),
+            Self::Equal => write!(f, "{}", "="),
 
-            Self::LParen => write!(f, "{}", "(".white()),
-            Self::RParen => write!(f, "{}", ")".white()),
+            Self::LParen => write!(f, "{}", "("),
+            Self::RParen => write!(f, "{}", ")"),
         }
     }
 }

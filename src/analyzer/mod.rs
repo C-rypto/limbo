@@ -1,11 +1,21 @@
-use ast_parser::seq;
+use ast_parser::stmt;
 
-use crate::{common::ast_types::ast_node::Root, common::TokenStream};
+use crate::common::{
+    ast_types::{
+        ast_node::{ASTNode, ASTStream},
+        Root,
+    },
+    TokenStream,
+};
 
 mod ast_parser;
 
 pub fn analyze(tokens: &mut TokenStream) -> Root {
-    let seq = seq::parse(tokens);
-    let root = Root { sequence: seq };
-    root
+    let mut stream = ASTStream::new();
+
+    while let Some(next) = tokens.pop_front() {
+        stream.push_back(ASTNode::Stmt(stmt::parse(tokens, next)));
+    }
+
+    return Root { nodes: stream };
 }

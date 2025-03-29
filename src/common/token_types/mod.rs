@@ -1,15 +1,12 @@
 mod keyword;
 mod symbols;
 
-use {
-    super::{error::syntax_err, values::Value, Stream},
-    colored::Colorize,
-    std::collections::VecDeque,
-};
+use {super::values::Value, colored::Colorize, std::collections::VecDeque};
 pub use {keyword::Keyword, symbols::Symbol};
 
 #[derive(Clone, PartialEq)]
 pub enum Token {
+	EOL,
     Unknown(String, i32),
 
     Symbols(Symbol),
@@ -21,6 +18,7 @@ pub enum Token {
 impl Token {
     pub fn get_mark(&self) -> String {
         match self {
+			Self::EOL => "eol".to_string(),
             Self::Unknown(..) => "unk".to_string(),
             Self::Symbols(sym) => sym.to_string(),
             Self::Literal(..) => "lit".to_string(),
@@ -31,26 +29,27 @@ impl Token {
 }
 
 pub type TokenStream = VecDeque<Token>;
-impl Stream for TokenStream {
-    type Output = Token;
-    fn match_next(&mut self, mark: &'static str) -> Self::Output {
-        match self.pop_front() {
-            Some(token) => {
-                let self_mark = token.get_mark();
-                if mark != self_mark {
-                    syntax_err::report(syntax_err::not_expected(mark, Some(&self_mark)))
-                } else {
-                    token
-                }
-            }
-            None => syntax_err::report(syntax_err::not_expected(mark, None)),
-        }
-    }
-}
+// impl Stream for TokenStream {
+//     type Output = Token;
+//     fn match_next(&mut self, mark: &'static str) -> Self::Output {
+//         match self.pop_front() {
+//             Some(token) => {
+//                 let self_mark = token.get_mark();
+//                 if mark != self_mark {
+//                     syntax_err::report(syntax_err::not_expected(Some(&self_mark)))
+//                 } else {
+//                     token
+//                 }
+//             }
+//             None => syntax_err::report(syntax_err::not_expected(None::<Token>)),
+//         }
+//     }
+// }
 
 impl core::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+			Self::EOL => write!(f, "\n"),
             Self::Unknown(lexeme, line) => write!(
                 f,
                 "\n\tPanic at line {}: `{}`\n",

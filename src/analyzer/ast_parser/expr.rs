@@ -1,40 +1,48 @@
-use crate::common::{
-    ast_types::{
-        ast_node::{ASTNode, ASTStream},
-        node_types::{AtomNode, ExprNode},
-    }, error::syntax_err, Symbol, Token, TokenStream
+use crate::{
+    analyzer::ast_parser::term,
+    common::{
+        ast_types::node_types::{ExprNode, MathExprNode, MathExprRest},
+        error::syntax_err,
+        Symbol, Token, TokenStream,
+    },
 };
 
-use super::term;
+pub fn parse(tokens: &mut TokenStream, current: Token) -> ExprNode {
 
-pub fn parse(tokens: &mut TokenStream, first: Option<Token>) -> ExprNode {
-    let mut elements = ASTStream::new();
+    let left_hand = term::parse(tokens, current);
 
-    if let Some(first) = first {
-        match first {
-            Token::Identif(..) | Token::Literal(..) => elements.push_back(ASTNode::from(first)),
-            Token::Symbols(sym) => {
-                match sym {
-					Symbol::Add | Symbol::Sub => term::parse(tokens, sym),
-					
-				}
-            }
-            _ => unreachable!(),
+    if let Some(next) = tokens.pop_front() {
+        let right_hand = parse_rest(tokens, next);
+        return ExprNode::Math(MathExprNode::new(left_hand, right_hand));
+    } else {
+        return ExprNode::Math(MathExprNode::new(left_hand, None));
+    }
+}
+
+fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<MathExprRest> {
+    let oper: Symbol;
+    match current {
+        Token::Symbols(sym) => {
+            match sym {
+				Symbol::Add | Symbol::Sub => oper = sym,
+				Symbol::RParen => return None,
+				_ => syntax_err::report(syntax_err::unexpected(sym), file!(), line!()),
+			}
         }
+		Token::Keyword(..) => {
+			tokens.push_front(current);
+			return None;
+		},
+		Token::EOL => return None,
+        _ => syntax_err::report(syntax_err::unexpected(current), file!(), line!()),
     }
 
-	while let Some(token) = tokens.pop_front() {
-		/*
-		Follow:
-			),
-			<kwd>,
-			=,
-		 */
-		match token {
-			Token::Unknown(..) => syntax_err::report(syntax_err::unknown_token(token)),
-			Token::Identif(idt) => elements.push_back(ASTNode::Expr(ExprNode::Atom(Box::new(AtomNode::Idt(idt))))),
-		}
-	}
+    let right_hand: ExprNode;
+    if let Some(next) = tokens.pop_front() {
+        right_hand = parse(tokens, next);
+    } else {
+        syntax_err::report(syntax_err::illegal_eof(), file!(), line!());
+    }
 
-    ExprNode::Expr(elements)
+    return Some((oper, Box::new(right_hand)));
 }

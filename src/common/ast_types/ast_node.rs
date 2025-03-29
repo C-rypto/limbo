@@ -1,12 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::common::Token;
-
-use super::node_types::{AtomNode, ExprNode, SeqNode, StmtNode};
-
-pub struct Root {
-    pub sequence: SeqNode,
-}
+use super::node_types::{expr_node::ExprNode, stmt_node::StmtNode};
 
 #[derive(Clone, PartialEq)]
 pub enum ASTNode {
@@ -16,20 +10,22 @@ pub enum ASTNode {
 
 pub type ASTStream = VecDeque<ASTNode>;
 
-impl From<Token> for ASTNode {
-    fn from(value: Token) -> Self {
-        match value {
-            Token::Identif(idt) => Self::Expr(ExprNode::Atom(Box::new(AtomNode::Idt(idt)))),
-            Token::Literal(lit) => Self::Expr(ExprNode::Atom(Box::new(AtomNode::Val(lit)))),
-            _ => unreachable!(),
-        }
+impl From<ExprNode> for ASTNode {
+    fn from(value: ExprNode) -> Self {
+        ASTNode::Expr(value)
+    }
+}
+
+impl From<StmtNode> for ASTNode {
+    fn from(value: StmtNode) -> Self {
+        ASTNode::Stmt(value)
     }
 }
 
 impl core::fmt::Display for ASTNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Stmt(_) => write!(f, "Statement Node"),
+            Self::Stmt(node) => write!(f, "Stmt{}", node),
             Self::Expr(_) => write!(f, "Expression Node"),
         }
     }

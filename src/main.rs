@@ -14,18 +14,15 @@ fn main() {
     }
 
     let mut tokens = tokenizer::tokenize(&src);
-    print!("tokens: \n\t");
+    print!("tokens: \n ");
     for token in &tokens {
         print!("{} ", token);
     }
     print!("\n");
     std::io::stdout().flush().unwrap();
 
-    let ast_tree = analyzer::analyze(&mut tokens);
-    print!(" nodes: \n\t");
-    for node in ast_tree.sequence.elements {
-        print!("{} ", node);
+    let root = analyzer::analyze(&mut tokens);
+    for node in root.nodes {
+        println!("{}", node);
     }
-    print!("\n");
-    std::io::stdout().flush().unwrap();
 }
