@@ -2,13 +2,22 @@ use colored::Colorize;
 
 use crate::common::Token;
 
+#[macro_export]
+macro_rules! syntax_err {
+	($msg: expr) => {
+		{
+			syntax_err::report($msg, file!(), line!())
+		}
+	};
+}
+
 pub fn report<MSG>(msg: MSG, file: &'static str, line: u32) -> !
 where
     MSG: ToString,
 {
     panic!(
         "{} at {}:{} {}",
-        "Syntax-Error".red().bold(),
+        "Syntax Error".red().bold(),
         file,
         line,
         msg.to_string().white()

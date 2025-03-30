@@ -2,6 +2,7 @@ use std::{env, fs, io::Write};
 
 mod analyzer;
 mod common;
+mod computer;
 mod tokenizer;
 
 fn main() {

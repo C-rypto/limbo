@@ -1,4 +1,4 @@
-use crate::common::Symbol;
+use crate::common::{compile_time::token_types::Symbol, values::Value};
 
 use super::AtomNode;
 
@@ -17,13 +17,17 @@ impl TermNode {
             right_hand,
         }
     }
+
+    pub fn value(&self) -> Value {
+        todo!()
+    }
 }
 
 impl core::fmt::Display for TermNode {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		match &self.right_hand {
-			Some((op, right)) => write!(f, "\n- Term: {},{},{}", self.left_hand, op, right),
-			None => write!(f, "{}", self.left_hand),
-		}
-	}
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.right_hand {
+            Some((op, right)) => write!(f, "\n- Term: {},{},{}", self.left_hand, op, right),
+            None => write!(f, "{}", self.left_hand),
+        }
+    }
 }

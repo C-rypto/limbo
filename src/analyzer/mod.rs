@@ -1,7 +1,7 @@
 use ast_parser::stmt;
 
 use crate::common::{
-    ast_types::{
+    compile_time::ast_types::{
         ast_node::{ASTNode, ASTStream},
         Root,
     },

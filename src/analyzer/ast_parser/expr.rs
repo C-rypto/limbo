@@ -1,14 +1,15 @@
 use crate::{
     analyzer::ast_parser::term,
     common::{
-        ast_types::node_types::{ExprNode, MathExprNode, MathExprRest},
+        compile_time::ast_types::node_types::{ExprNode, MathExprNode, MathExprRest},
         error::syntax_err,
         Symbol, Token, TokenStream,
     },
 };
 
-pub fn parse(tokens: &mut TokenStream, current: Token) -> ExprNode {
+use crate::syntax_err;
 
+pub fn parse(tokens: &mut TokenStream, current: Token) -> ExprNode {
     let left_hand = term::parse(tokens, current);
 
     if let Some(next) = tokens.pop_front() {
@@ -22,26 +23,24 @@ pub fn parse(tokens: &mut TokenStream, current: Token) -> ExprNode {
 fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<MathExprRest> {
     let oper: Symbol;
     match current {
-        Token::Symbols(sym) => {
-            match sym {
-				Symbol::Add | Symbol::Sub => oper = sym,
-				Symbol::RParen => return None,
-				_ => syntax_err::report(syntax_err::unexpected(sym), file!(), line!()),
-			}
+        Token::Symbols(sym) => match sym {
+            Symbol::Add | Symbol::Sub => oper = sym,
+            Symbol::RParen => return None,
+            _ => syntax_err!(syntax_err::unexpected(sym)),
+        },
+        Token::Keyword(..) => {
+            tokens.push_front(current);
+            return None;
         }
-		Token::Keyword(..) => {
-			tokens.push_front(current);
-			return None;
-		},
-		Token::EOL => return None,
-        _ => syntax_err::report(syntax_err::unexpected(current), file!(), line!()),
+        Token::EOL => return None,
+        _ => syntax_err!(syntax_err::unexpected(current)),
     }
 
     let right_hand: ExprNode;
     if let Some(next) = tokens.pop_front() {
         right_hand = parse(tokens, next);
     } else {
-        syntax_err::report(syntax_err::illegal_eof(), file!(), line!());
+        syntax_err!(syntax_err::illegal_eof());
     }
 
     return Some((oper, Box::new(right_hand)));

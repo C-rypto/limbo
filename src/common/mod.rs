@@ -1,7 +1,7 @@
-pub mod ast_types;
-pub mod token_types;
-pub mod values;
+pub mod compile_time;
+pub mod run_time;
 
 pub mod error;
+pub mod values;
 
-pub use token_types::*;
+pub use compile_time::token_types::*;

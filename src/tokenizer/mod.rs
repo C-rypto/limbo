@@ -48,9 +48,9 @@ pub fn tokenize(src: &String) -> TokenStream {
             }
             ' ' | '\r' | '\t' => continue,
             '\n' => {
-				line += 1;
-				stream.push_back(Token::EOL);
-			},
+                line += 1;
+                stream.push_back(Token::EOL);
+            }
             _ => {
                 if let Some(symbol) = Symbol::is_symbol(ch) {
                     stream.push_back(Token::Symbols(symbol));

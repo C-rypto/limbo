@@ -1,12 +1,12 @@
 mod keyword;
 mod symbols;
 
-use {super::values::Value, colored::Colorize, std::collections::VecDeque};
+use {crate::common::values::Value, colored::Colorize, std::collections::VecDeque};
 pub use {keyword::Keyword, symbols::Symbol};
 
 #[derive(Clone, PartialEq)]
 pub enum Token {
-	EOL,
+    EOL,
     Unknown(String, i32),
 
     Symbols(Symbol),
@@ -18,7 +18,7 @@ pub enum Token {
 impl Token {
     pub fn get_mark(&self) -> String {
         match self {
-			Self::EOL => "eol".to_string(),
+            Self::EOL => "eol".to_string(),
             Self::Unknown(..) => "unk".to_string(),
             Self::Symbols(sym) => sym.to_string(),
             Self::Literal(..) => "lit".to_string(),
@@ -49,7 +49,7 @@ pub type TokenStream = VecDeque<Token>;
 impl core::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-			Self::EOL => write!(f, "\n"),
+            Self::EOL => write!(f, "\n"),
             Self::Unknown(lexeme, line) => write!(
                 f,
                 "\n\tPanic at line {}: `{}`\n",

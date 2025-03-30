@@ -26,7 +26,7 @@ impl core::fmt::Display for ASTNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Stmt(node) => write!(f, "Stmt{}", node),
-            Self::Expr(_) => write!(f, "Expression Node"),
+            Self::Expr(node) => write!(f, "Expr{}", node),
         }
     }
 }
