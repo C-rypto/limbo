@@ -4,8 +4,7 @@ use crate::common::{
     compile_time::ast_types::{
         ast_node::{ASTNode, ASTStream},
         Root,
-    },
-    TokenStream,
+    }, Token, TokenStream
 };
 
 mod ast_parser;

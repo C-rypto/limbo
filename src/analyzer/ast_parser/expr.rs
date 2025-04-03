@@ -2,8 +2,7 @@ use crate::{
     analyzer::ast_parser::term,
     common::{
         compile_time::ast_types::node_types::{ExprNode, MathExprNode, MathExprRest},
-        error::syntax_err,
-        Symbol, Token, TokenStream,
+        error, Symbol, Token, TokenStream,
     },
 };
 
@@ -26,21 +25,21 @@ fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<MathExprRest> 
         Token::Symbols(sym) => match sym {
             Symbol::Add | Symbol::Sub => oper = sym,
             Symbol::RParen => return None,
-            _ => syntax_err!(syntax_err::unexpected(sym)),
+            _ => syntax_err!(error::unexpected(sym)),
         },
         Token::Keyword(..) => {
             tokens.push_front(current);
             return None;
         }
         Token::EOL => return None,
-        _ => syntax_err!(syntax_err::unexpected(current)),
+        _ => syntax_err!(error::unexpected(current)),
     }
 
     let right_hand: ExprNode;
     if let Some(next) = tokens.pop_front() {
         right_hand = parse(tokens, next);
     } else {
-        syntax_err!(syntax_err::illegal_eof());
+        syntax_err!(error::illegal_eof());
     }
 
     return Some((oper, Box::new(right_hand)));

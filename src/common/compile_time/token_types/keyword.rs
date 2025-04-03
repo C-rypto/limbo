@@ -1,5 +1,6 @@
 use colored::Colorize;
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub enum Keyword {
     Var,

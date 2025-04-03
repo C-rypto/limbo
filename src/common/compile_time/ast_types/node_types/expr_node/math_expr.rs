@@ -1,4 +1,4 @@
-use crate::common::{compile_time::token_types::Symbol, values::Value};
+use crate::common::compile_time::token_types::Symbol;
 
 use super::{ExprNode, TermNode};
 
@@ -16,10 +16,6 @@ impl MathExprNode {
             left_hand,
             right_hand,
         }
-    }
-
-    pub fn value(&self) -> Value {
-        todo!()
     }
 }
 

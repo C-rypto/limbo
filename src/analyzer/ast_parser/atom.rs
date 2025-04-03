@@ -1,5 +1,5 @@
 use crate::common::{
-    compile_time::ast_types::node_types::AtomNode, error::syntax_err, Symbol, Token, TokenStream,
+    compile_time::ast_types::node_types::AtomNode, error, Symbol, Token, TokenStream,
 };
 
 use crate::syntax_err;
@@ -12,8 +12,8 @@ pub fn parse(tokens: &mut TokenStream, current: Token) -> AtomNode {
         Token::Literal(val) => return AtomNode::Val(val),
         Token::Symbols(Symbol::LParen) => match tokens.pop_front() {
             Some(next) => return AtomNode::Expr(Box::new(expr::parse(tokens, next))),
-            None => syntax_err!(syntax_err::illegal_eof())
+            None => syntax_err!(error::illegal_eof()),
         },
-        _ => syntax_err!(syntax_err::unexpected(current)),
+        _ => syntax_err!(error::unexpected(current)),
     }
 }

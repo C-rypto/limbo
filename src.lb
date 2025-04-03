@@ -1,3 +1,9 @@
-var x = 1
-var abc = (x + 2) - (3 * 4) / 4
-out abc
+var a = 2
+var b = a + 3
+
+
+
+
+
+out a
+out b

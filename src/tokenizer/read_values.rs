@@ -22,14 +22,19 @@ pub fn read_unknow(chars: &mut Chars, first: char, line: i32) -> (char, String, 
 }
 
 pub fn read_string(chars: &mut Chars, line: i32) -> (char, Value, i32) {
-    fn convert(ch: char) -> char {
-        match ch {
-            't' => '\t',
-            'n' => '\n',
-            'r' => '\r',
-            '\\' => '\\',
-            _ => ch,
-        }
+    fn convert(chars: &mut Chars) -> char {
+		match chars.next() {
+			Some(ch) => {
+				match ch {
+					't' => '\t',
+					'n' => '\n',
+					'r' => '\r',
+					'\\' => '\\',
+					_ => ch,
+				}
+			}
+			None => return '\0',
+		}
     }
 
     let mut value = String::new();
@@ -39,7 +44,7 @@ pub fn read_string(chars: &mut Chars, line: i32) -> (char, Value, i32) {
         if ch == '\'' || ch == '\"' {
             break;
         } else if ch == '\\' {
-            value.push(convert(ch));
+            value.push(convert(chars));
         } else if ch == '\n' {
             line += 1;
         } else {

@@ -4,6 +4,7 @@ mod symbols;
 use {crate::common::values::Value, colored::Colorize, std::collections::VecDeque};
 pub use {keyword::Keyword, symbols::Symbol};
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub enum Token {
     EOL,

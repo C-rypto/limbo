@@ -1,12 +1,11 @@
+use crate::syntax_err;
 use crate::{
     analyzer::ast_parser::atom,
     common::{
         compile_time::ast_types::node_types::{AtomNode, TermNode, TermRest},
-        error::syntax_err,
-        Symbol, Token, TokenStream,
+        error, Symbol, Token, TokenStream,
     },
 };
-use crate::syntax_err;
 
 pub fn parse(tokens: &mut TokenStream, current: Token) -> TermNode {
     let left_hand: AtomNode;
@@ -14,7 +13,7 @@ pub fn parse(tokens: &mut TokenStream, current: Token) -> TermNode {
         Token::Identif(..) | Token::Literal(..) | Token::Symbols(Symbol::LParen) => {
             left_hand = atom::parse(tokens, current);
         }
-        _ => syntax_err!(syntax_err::unexpected(current)),
+        _ => syntax_err!(error::unexpected(current)),
     }
 
     match tokens.pop_front() {
@@ -42,14 +41,14 @@ fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<TermRest> {
             return None;
         }
         Token::EOL => return None,
-        _ => syntax_err!(syntax_err::unexpected(current)),
+        _ => syntax_err!(error::unexpected(current)),
     }
 
     let rest: TermNode;
     if let Some(next) = tokens.pop_front() {
         rest = parse(tokens, next);
     } else {
-        syntax_err!(syntax_err::illegal_eof());
+        syntax_err!(error::illegal_eof());
     }
 
     return Some((oper, Box::new(rest)));

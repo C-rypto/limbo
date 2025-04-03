@@ -1,5 +1,6 @@
 use crate::common::values::Value;
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub enum Symbol {
     Add,
@@ -23,15 +24,15 @@ impl Symbol {
         return None;
     }
 
-	pub fn binary_operate(&self, left: Value, right: Value) -> Value {
-		match self {
-			Self::Add => left + right,
-			Self::Sub => left - right,
-			Self::Mul => left * right,
-			Self::Div => left / right,
-			_ => unreachable!()
-		}
-	}
+    pub fn binary_operate(&self, left: Value, right: Value) -> Value {
+        match self {
+            Self::Add => left + right,
+            Self::Sub => left - right,
+            Self::Mul => left * right,
+            Self::Div => left / right,
+            _ => unreachable!(),
+        }
+    }
 }
 
 pub static SYMBOL_PAIR: [(char, Symbol); 7] = [
