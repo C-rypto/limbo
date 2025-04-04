@@ -30,22 +30,6 @@ impl Token {
 }
 
 pub type TokenStream = VecDeque<Token>;
-// impl Stream for TokenStream {
-//     type Output = Token;
-//     fn match_next(&mut self, mark: &'static str) -> Self::Output {
-//         match self.pop_front() {
-//             Some(token) => {
-//                 let self_mark = token.get_mark();
-//                 if mark != self_mark {
-//                     syntax_err::report(syntax_err::not_expected(Some(&self_mark)))
-//                 } else {
-//                     token
-//                 }
-//             }
-//             None => syntax_err::report(syntax_err::not_expected(None::<Token>)),
-//         }
-//     }
-// }
 
 impl core::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

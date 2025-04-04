@@ -6,24 +6,22 @@ use crate::syntax_err;
 use super::{expect, expr};
 
 pub fn parse(tokens: &mut TokenStream, current: Token) -> StmtNode {
-	match current {
-		Token::Keyword(kwd) => {
-			match kwd {
-            	Keyword::Var => parse_var_stmt(tokens),
-            	Keyword::Out => parse_out_stmt(tokens),
-        	}
-		}
-		Token::EOL => {
-			while let Some(next) = tokens.pop_front() {
-				if next == Token::EOL {
-					continue;
-				}
-				return parse(tokens, next);
-			}
-			syntax_err!(error::illegal_eof())
-		}
-		_ => syntax_err!(error::unexpected(current))
-	}
+    match current {
+        Token::Keyword(kwd) => match kwd {
+            Keyword::Var => parse_var_stmt(tokens),
+            Keyword::Out => parse_out_stmt(tokens),
+        },
+        Token::EOL => {
+            while let Some(next) = tokens.pop_front() {
+                if next == Token::EOL {
+                    continue;
+                }
+                return parse(tokens, next);
+            }
+            syntax_err!(error::illegal_eof())
+        }
+        _ => syntax_err!(error::unexpected(current)),
+    }
 }
 
 fn parse_var_stmt(tokens: &mut TokenStream) -> StmtNode {
