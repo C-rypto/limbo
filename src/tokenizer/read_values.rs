@@ -51,6 +51,7 @@ pub fn read_string(chars: &mut Chars, line: u32, offset: u32) -> (char, Value, u
         } else if ch == '\n' {
             line += 1;
 			offset = 0;
+			value.push(ch);
         } else {
             value.push(ch);
         }

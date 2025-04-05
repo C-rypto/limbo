@@ -17,14 +17,14 @@ impl Value {
     pub fn number(self) -> f64 {
         match self {
             Self::Number(num) => num,
-            _ => err_report!(RuntimeErr::TypeError().into()),
+            _ => err_report!(RuntimeErr::TypeError(self).into()),
         }
     }
 
     pub fn string(self) -> String {
         match self {
+            Value::Number(num) => num.to_string(),
             Value::String(str) => str,
-            _ => err_report!(RuntimeErr::TypeError().into()),
         }
     }
 
@@ -57,7 +57,7 @@ impl Sub for Value {
     fn sub(self, rhs: Self) -> Self::Output {
         match self {
             Value::Number(num) => Value::Number(num - rhs.number()),
-            _ => unreachable!(),
+            Value::String(..) => err_report!(RuntimeErr::TypeError(self).into()),
         }
     }
 }
@@ -77,7 +77,7 @@ impl Div for Value {
     fn div(self, rhs: Self) -> Self::Output {
         match self {
             Value::Number(num) => Value::Number(num / rhs.number()),
-            _ => unreachable!(),
+            Value::String(..) => err_report!(RuntimeErr::TypeError(self).into()),
         }
     }
 }
