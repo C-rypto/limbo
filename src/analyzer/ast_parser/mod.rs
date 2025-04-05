@@ -1,5 +1,7 @@
-use crate::common::{error, Token, TokenStream};
-use crate::syntax_err;
+use crate::{
+    common::{error::CompileErr, Token, TokenStream},
+    err_report,
+};
 
 pub mod atom;
 pub mod expr;
@@ -9,10 +11,13 @@ pub mod term;
 pub fn expect(tokens: &mut TokenStream, target: &'static str) -> Token {
     if let Some(next) = tokens.pop_front() {
         if next.get_mark() != target.to_string() {
-            syntax_err!(error::unexpected(next))
+            err_report!(CompileErr::Unexpected(next.to_string()).into())
         }
+		else if next.get_mark() == "unk" {
+			err_report!(CompileErr::UnknownTok(next).into())
+		}
         return next;
     } else {
-        syntax_err!(error::illegal_eof())
+        err_report!(CompileErr::IllegalEOF.into())
     }
 }

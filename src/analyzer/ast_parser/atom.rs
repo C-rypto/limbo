@@ -1,19 +1,22 @@
-use crate::common::{
-    compile_time::ast_types::node_types::AtomNode, error, Symbol, Token, TokenStream,
+use crate::{
+    common::{
+        compile_time::ast_types::node_types::AtomNode, error::CompileErr, Symbol, Token,
+        TokenStream, TokenType,
+    },
+    err_report,
 };
-
-use crate::syntax_err;
 
 use super::expr;
 
 pub fn parse(tokens: &mut TokenStream, current: Token) -> AtomNode {
-    match current {
-        Token::Identif(idt) => return AtomNode::Idt(idt),
-        Token::Literal(val) => return AtomNode::Val(val),
-        Token::Symbols(Symbol::LParen) => match tokens.pop_front() {
+    match current.token_type {
+        TokenType::Identif(idt) => return AtomNode::Idt(idt),
+        TokenType::Literal(val) => return AtomNode::Val(val),
+        TokenType::Symbols(Symbol::LParen) => match tokens.pop_front() {
             Some(next) => return AtomNode::Expr(Box::new(expr::parse(tokens, next))),
-            None => syntax_err!(error::illegal_eof()),
+            None => err_report!(CompileErr::IllegalEOF.into()),
         },
-        _ => syntax_err!(error::unexpected(current)),
+		TokenType::Unknown(..) => err_report!(CompileErr::UnknownTok(current).into()),
+        _ => err_report!(CompileErr::Unexpected(current.to_string()).into()),
     }
 }

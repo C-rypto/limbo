@@ -1,9 +1,5 @@
-var a = 2
-var b = a + 3
+var a = 2 
+var b = a + 3 @2134
 
-
-
-
-
-out a
-out b
+@114514
+out a *10 +b

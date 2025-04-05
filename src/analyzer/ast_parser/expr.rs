@@ -2,11 +2,11 @@ use crate::{
     analyzer::ast_parser::term,
     common::{
         compile_time::ast_types::node_types::{ExprNode, MathExprNode, MathExprRest},
-        error, Symbol, Token, TokenStream,
+        error::CompileErr,
+        Symbol, Token, TokenStream, TokenType,
     },
+    err_report,
 };
-
-use crate::syntax_err;
 
 pub fn parse(tokens: &mut TokenStream, current: Token) -> ExprNode {
     let left_hand = term::parse(tokens, current);
@@ -21,25 +21,26 @@ pub fn parse(tokens: &mut TokenStream, current: Token) -> ExprNode {
 
 fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<MathExprRest> {
     let oper: Symbol;
-    match current {
-        Token::Symbols(sym) => match sym {
+    match current.token_type {
+        TokenType::Symbols(sym) => match sym {
             Symbol::Add | Symbol::Sub => oper = sym,
             Symbol::RParen => return None,
-            _ => syntax_err!(error::unexpected(sym)),
+            _ => err_report!(CompileErr::Unexpected(sym.to_string()).into()),
         },
-        Token::Keyword(..) => {
+        TokenType::Keyword(..) => {
             tokens.push_front(current);
             return None;
         }
-        Token::EOL => return None,
-        _ => syntax_err!(error::unexpected(current)),
+        TokenType::EOL => return None,
+		TokenType::Unknown(..) => err_report!(CompileErr::UnknownTok(current).into()),
+        _ => err_report!(CompileErr::Unexpected(current.to_string()).into()),
     }
 
     let right_hand: ExprNode;
     if let Some(next) = tokens.pop_front() {
         right_hand = parse(tokens, next);
     } else {
-        syntax_err!(error::illegal_eof());
+        err_report!(CompileErr::IllegalEOF.into())
     }
 
     return Some((oper, Box::new(right_hand)));

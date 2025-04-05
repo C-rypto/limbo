@@ -1,11 +1,11 @@
 use crate::{
     common::{
         compile_time::ast_types::node_types::{AtomNode, ExprNode, MathExprNode, TermNode},
-        error::undeclared,
+        error::RuntimeErr,
         run_time::env::Environment,
         values::Value,
     },
-    runtime_err,
+    err_report,
 };
 
 pub struct ValueReader {
@@ -26,7 +26,7 @@ impl ValueReader {
             AtomNode::Val(val) => val.clone(),
             AtomNode::Idt(idt) => match self.environment.find(idt) {
                 Some(val) => val,
-                None => runtime_err!(undeclared(idt)),
+                None => err_report!(RuntimeErr::Undeclared(idt.to_string()).into()), // runtime_err!(undeclared(idt)),
             },
             AtomNode::Expr(exp) => self.expr(&exp),
         }

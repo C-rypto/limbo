@@ -1,52 +1,44 @@
-use runtime_err::RuntimeError;
-use syntax_err::SyntaxError;
+use std::process::exit;
 
-use crate::common::Token;
+use colored::Colorize;
 
-pub mod runtime_err;
-pub mod syntax_err;
+mod compile_err;
+mod runtime_err;
+
+pub use {compile_err::CompileErr, runtime_err::RuntimeErr};
+
+#[macro_export]
+macro_rules! err_report {
+    ($err: expr) => {
+        crate::common::error::report($err)
+    };
+}
+
+pub fn report(err: ErrorType) -> ! {
+    let (header, msg) = {
+        match err {
+            ErrorType::Compile(compile) => ("Compile Error".red().bold(), compile.to_string()),
+            ErrorType::Runtime(runtime) => ("Runtime Error".red().bold(), runtime.to_string()),
+        }
+    };
+
+    eprint!("\n{}\n    {}\n\n", header, msg);
+    exit(-1)
+}
 
 pub enum ErrorType {
-    Syntax(SyntaxError),
-    Runtime(RuntimeError),
+    Compile(CompileErr),
+    Runtime(RuntimeErr),
 }
 
-impl core::fmt::Display for ErrorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Syntax(err) => write!(f, "{}", err),
-            Self::Runtime(err) => write!(f, "{}", err),
-        }
+impl From<CompileErr> for ErrorType {
+    fn from(value: CompileErr) -> Self {
+        ErrorType::Compile(value)
     }
 }
 
-pub fn unexpected<TS>(get: TS) -> ErrorType
-where
-    TS: ToString,
-{
-    return ErrorType::Syntax(SyntaxError::UnExpected {
-        get: get.to_string(),
-    });
-}
-
-pub fn unknown_tok(token: Token) -> ErrorType {
-    if let Token::Unknown(what, line) = token {
-        return ErrorType::Syntax(SyntaxError::UnknownTok { what, line });
+impl From<RuntimeErr> for ErrorType {
+    fn from(value: RuntimeErr) -> Self {
+        ErrorType::Runtime(value)
     }
-    unreachable!()
-}
-
-pub fn illegal_eof() -> ErrorType {
-    return ErrorType::Syntax(SyntaxError::IllegalEOF);
-}
-
-pub fn type_error() -> ErrorType {
-    return ErrorType::Runtime(RuntimeError::TypeError);
-}
-
-pub fn undeclared<TS>(name: TS) -> ErrorType
-where
-    TS: ToString,
-{
-    return ErrorType::Runtime(RuntimeError::UndeclaredIdt(name.to_string()));
 }

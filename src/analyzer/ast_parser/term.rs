@@ -1,19 +1,21 @@
-use crate::syntax_err;
 use crate::{
     analyzer::ast_parser::atom,
     common::{
         compile_time::ast_types::node_types::{AtomNode, TermNode, TermRest},
-        error, Symbol, Token, TokenStream,
+        error::CompileErr,
+        Symbol, Token, TokenStream, TokenType,
     },
+    err_report,
 };
 
 pub fn parse(tokens: &mut TokenStream, current: Token) -> TermNode {
     let left_hand: AtomNode;
-    match current {
-        Token::Identif(..) | Token::Literal(..) | Token::Symbols(Symbol::LParen) => {
+    match current.token_type {
+        TokenType::Identif(..) | TokenType::Literal(..) | TokenType::Symbols(Symbol::LParen) => {
             left_hand = atom::parse(tokens, current);
         }
-        _ => syntax_err!(error::unexpected(current)),
+		TokenType::Unknown(..) => err_report!(CompileErr::UnknownTok(current).into()),
+        _ => err_report!(CompileErr::Unexpected(current.to_string()).into()),
     }
 
     match tokens.pop_front() {
@@ -27,8 +29,8 @@ pub fn parse(tokens: &mut TokenStream, current: Token) -> TermNode {
 
 fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<TermRest> {
     let oper: Symbol;
-    match &current {
-        Token::Symbols(sym) => {
+    match &current.token_type {
+        TokenType::Symbols(sym) => {
             if *sym == Symbol::Mul || *sym == Symbol::Div {
                 oper = sym.clone();
             } else {
@@ -36,19 +38,20 @@ fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<TermRest> {
                 return None;
             }
         }
-        Token::Keyword(..) => {
+        TokenType::Keyword(..) => {
             tokens.push_front(current);
             return None;
         }
-        Token::EOL => return None,
-        _ => syntax_err!(error::unexpected(current)),
+		TokenType::Unknown(..) => err_report!(CompileErr::UnknownTok(current).into()),
+        TokenType::EOL => return None,
+        _ => err_report!(CompileErr::Unexpected(current.to_string()).into()),
     }
 
     let rest: TermNode;
     if let Some(next) = tokens.pop_front() {
         rest = parse(tokens, next);
     } else {
-        syntax_err!(error::illegal_eof());
+        err_report!(CompileErr::IllegalEOF.into())
     }
 
     return Some((oper, Box::new(rest)));
