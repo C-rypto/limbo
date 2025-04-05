@@ -64,5 +64,6 @@ pub fn tokenize(src: &String) -> TokenStream {
         }
     }
 
+	stream.push_back(Token::EOF);
     return stream;
 }

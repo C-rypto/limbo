@@ -8,6 +8,8 @@ pub use {keyword::Keyword, symbols::Symbol};
 #[derive(Clone, PartialEq)]
 pub enum Token {
     EOL,
+	EOF,
+
     Unknown(String, i32),
 
     Symbols(Symbol),
@@ -20,6 +22,7 @@ impl Token {
     pub fn get_mark(&self) -> String {
         match self {
             Self::EOL => "eol".to_string(),
+			Self::EOF => "eof".to_string(),
             Self::Unknown(..) => "unk".to_string(),
             Self::Symbols(sym) => sym.to_string(),
             Self::Literal(..) => "lit".to_string(),
@@ -35,6 +38,8 @@ impl core::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::EOL => write!(f, "\n"),
+			Self::EOF => write!(f, "\0"),
+
             Self::Unknown(lexeme, line) => write!(
                 f,
                 "\n\tPanic at line {}: `{}`\n",
