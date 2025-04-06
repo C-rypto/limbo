@@ -1,17 +1,15 @@
-use crate::{
-    common::{
-        compile_time::ast_types::node_types::stmt_node::StmtNode, error::CompileErr, Keyword,
-        Token, TokenStream, TokenType,
-    },
-    err_report,
+use crate::common::{
+    compile_time::ast_types::node_types::stmt_node::StmtNode,
+    error::{CompileErr, ErrorType},
+    Keyword, Token, TokenStream, TokenType,
 };
 
 use super::{expect, expr};
 
-pub fn parse(tokens: &mut TokenStream, current: Token) -> StmtNode {
-    match current.token_type {
+pub fn parse(tokens: &mut TokenStream, current: Token) -> Result<StmtNode, ErrorType> {
+    match &current.token_type {
         TokenType::Keyword(kwd) => match kwd {
-            Keyword::Var => parse_var_stmt(tokens),
+            Keyword::Var => return parse_var_stmt(tokens),
             Keyword::Out => parse_out_stmt(tokens),
         },
         TokenType::EOL => {
@@ -21,33 +19,33 @@ pub fn parse(tokens: &mut TokenStream, current: Token) -> StmtNode {
                 }
                 return parse(tokens, next);
             }
-            err_report!(CompileErr::IllegalEOF.into())
+            return Err(CompileErr::IllegalEOF.into());
         }
-		TokenType::Unknown(..) => err_report!(CompileErr::UnknownTok(current).into()),
-        _ => err_report!(CompileErr::Unexpected(current.to_string()).into()),
+        TokenType::Unknown(..) => return Err(CompileErr::UnknownTok(Box::new(current)).into()),
+        _ => return Err(CompileErr::Unexpected(Box::new(current)).into()),
     }
 }
 
-fn parse_var_stmt(tokens: &mut TokenStream) -> StmtNode {
-    let token = expect(tokens, "idt");
-    if let TokenType::Identif(name) = token.token_type {
-        expect(tokens, "=");
+fn parse_var_stmt(tokens: &mut TokenStream) -> Result<StmtNode, ErrorType> {
+    let token = expect(tokens, "idt")?;
+    if let TokenType::Identif(name) = &token.token_type {
+        expect(tokens, "=")?;
         if let Some(next) = tokens.pop_front() {
-            let variable_val = expr::parse(tokens, next);
-            return StmtNode::Var(name, Box::new(variable_val));
+            let variable_val = expr::parse(tokens, &next)?;
+            return Ok(StmtNode::Var(name.to_string(), Box::new(variable_val)));
         } else {
-            err_report!(CompileErr::IllegalEOF.into())
+            return Err(CompileErr::IllegalEOF.into());
         }
     } else {
-        err_report!(CompileErr::Unexpected(token.to_string()).into())
+        return Err(CompileErr::Unexpected(Box::new(token)).into());
     }
 }
 
-fn parse_out_stmt(tokens: &mut TokenStream) -> StmtNode {
+fn parse_out_stmt(tokens: &mut TokenStream) -> Result<StmtNode, ErrorType> {
     if let Some(next) = tokens.pop_front() {
-        let output_val = expr::parse(tokens, next);
-        return StmtNode::Out(Box::new(output_val));
+        let output_val = expr::parse(tokens, &next)?;
+        return Ok(StmtNode::Out(Box::new(output_val)));
     } else {
-        err_report!(CompileErr::IllegalEOF.into())
+        return Err(CompileErr::IllegalEOF.into());
     }
 }

@@ -1,25 +1,34 @@
 mod keyword;
 mod symbols;
 
-use {crate::common::values::Value, colored::Colorize, std::collections::VecDeque};
+use {
+    super::Location,
+    crate::common::{error::Locatable, values::Value},
+    colored::Colorize,
+    std::collections::VecDeque,
+};
 pub use {keyword::Keyword, symbols::Symbol};
-
-pub type TokenPos = (String, u32, u32);
 
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub struct Token {
     pub token_type: TokenType,
-    pub pos: TokenPos,
+    pub pos: Location,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, pos: TokenPos) -> Token {
+    pub fn new(token_type: TokenType, pos: Location) -> Token {
         return Token { token_type, pos };
     }
 
     pub fn get_mark(&self) -> String {
         return self.token_type.get_mark();
+    }
+}
+
+impl Locatable for Token {
+    fn get_pos(&self) -> String {
+        return format!("{}:{}:{}", self.pos.0, self.pos.1, self.pos.2);
     }
 }
 
@@ -53,7 +62,7 @@ pub type TokenStream = VecDeque<Token>;
 
 impl core::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.token_type)
+        return self.token_type.fmt(f);
     }
 }
 

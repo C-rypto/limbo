@@ -10,10 +10,10 @@ pub fn is_identi(ch: char) -> bool {
 
 pub fn read_unknow(chars: &mut Chars, first: char, offset: u32) -> (char, String, u32) {
     let mut value = String::from(first);
-	let mut offset = offset;
+    let mut offset = offset;
 
     while let Some(ch) = chars.next() {
-		offset += 1;
+        offset += 1;
         if ch.is_whitespace() {
             break;
         }
@@ -40,18 +40,18 @@ pub fn read_string(chars: &mut Chars, line: u32, offset: u32) -> (char, Value, u
     let mut value = String::new();
 
     let mut line = line;
-	let mut offset = offset;
+    let mut offset = offset;
 
     while let Some(ch) = chars.next() {
-		offset += 1;
+        offset += 1;
         if ch == '\'' || ch == '\"' {
             break;
         } else if ch == '\\' {
             value.push(convert(chars));
         } else if ch == '\n' {
             line += 1;
-			offset = 0;
-			value.push(ch);
+            offset = 0;
+            value.push(ch);
         } else {
             value.push(ch);
         }
@@ -70,12 +70,11 @@ pub fn read_number(chars: &mut Chars, first: char, offset: u32) -> (char, Value,
     let mut cache: char = '\0';
     let mut is_float = false;
 
-	let mut offset = offset;
+    let mut offset = offset;
 
     while let Some(ch) = chars.next() {
-		offset += 1;
+        offset += 1;
         if ch.is_ascii_digit() {
-
             let num = convert(ch);
             if is_float {
                 value = value + (num / 10.0);
@@ -100,7 +99,7 @@ pub fn read_identi(chars: &mut Chars, first: char, offset: u32) -> (char, String
     let mut offset = offset;
 
     while let Some(ch) = chars.next() {
-		offset += 1;
+        offset += 1;
         if is_identi(ch) {
             value.push(ch);
         } else {

@@ -7,6 +7,10 @@ mod runtime_err;
 
 pub use {compile_err::CompileErr, runtime_err::RuntimeErr};
 
+pub trait Locatable: ToString {
+    fn get_pos(&self) -> String;
+}
+
 #[macro_export]
 macro_rules! err_report {
     ($err: expr) => {
@@ -22,8 +26,15 @@ pub fn report(err: ErrorType) -> ! {
         }
     };
 
-    eprint!("\n{}\n    {}\n\n", header, msg);
+    eprint!("\n{}{}\n\n", header, msg);
     exit(-1)
+}
+
+pub fn unwrap<T>(value: Result<T, ErrorType>) -> T {
+    match value {
+        Ok(result) => result,
+        Err(err) => err_report!(err),
+    }
 }
 
 pub enum ErrorType {
@@ -40,5 +51,11 @@ impl From<CompileErr> for ErrorType {
 impl From<RuntimeErr> for ErrorType {
     fn from(value: RuntimeErr) -> Self {
         ErrorType::Runtime(value)
+    }
+}
+
+impl From<std::io::Error> for ErrorType {
+    fn from(value: std::io::Error) -> Self {
+        Self::Compile(CompileErr::from(value))
     }
 }

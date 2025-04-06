@@ -1,33 +1,34 @@
 use crate::{
     analyzer::ast_parser::atom,
     common::{
-        compile_time::ast_types::node_types::{AtomNode, TermNode, TermRest},
-        error::CompileErr,
+        compile_time::ast_types::node_types::{expr_node::AtomNode, TermNode, TermRest},
+        error::{CompileErr, ErrorType},
         Symbol, Token, TokenStream, TokenType,
     },
-    err_report,
 };
 
-pub fn parse(tokens: &mut TokenStream, current: Token) -> TermNode {
+pub fn parse(tokens: &mut TokenStream, current: &Token) -> Result<TermNode, ErrorType> {
     let left_hand: AtomNode;
-    match current.token_type {
+    match &current.token_type {
         TokenType::Identif(..) | TokenType::Literal(..) | TokenType::Symbols(Symbol::LParen) => {
-            left_hand = atom::parse(tokens, current);
+            left_hand = atom::parse(tokens, current)?;
         }
-		TokenType::Unknown(..) => err_report!(CompileErr::UnknownTok(current).into()),
-        _ => err_report!(CompileErr::Unexpected(current.to_string()).into()),
+        TokenType::Unknown(..) => {
+            return Err(CompileErr::UnknownTok(Box::new(current.clone())).into())
+        }
+        _ => return Err(CompileErr::Unexpected(Box::new(current.clone())).into()),
     }
 
-    match tokens.pop_front() {
+    match &tokens.pop_front() {
         Some(next) => {
-            let right_hand = parse_rest(tokens, next);
-            return TermNode::new(left_hand, right_hand);
+            let right_hand = parse_rest(tokens, next.clone())?;
+            return Ok(TermNode::new(left_hand, right_hand));
         }
-        None => return TermNode::new(left_hand, None),
+        None => return Ok(TermNode::new(left_hand, None)),
     }
 }
 
-fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<TermRest> {
+fn parse_rest(tokens: &mut TokenStream, current: Token) -> Result<Option<TermRest>, ErrorType> {
     let oper: Symbol;
     match &current.token_type {
         TokenType::Symbols(sym) => {
@@ -35,24 +36,24 @@ fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<TermRest> {
                 oper = sym.clone();
             } else {
                 tokens.push_front(current);
-                return None;
+                return Ok(None);
             }
         }
         TokenType::Keyword(..) => {
             tokens.push_front(current);
-            return None;
+            return Ok(None);
         }
-		TokenType::Unknown(..) => err_report!(CompileErr::UnknownTok(current).into()),
-        TokenType::EOL => return None,
-        _ => err_report!(CompileErr::Unexpected(current.to_string()).into()),
+        TokenType::Unknown(..) => return Err(CompileErr::UnknownTok(Box::new(current)).into()),
+        TokenType::EOL => return Ok(None),
+        _ => return Err(CompileErr::Unexpected(Box::new(current)).into()),
     }
 
     let rest: TermNode;
     if let Some(next) = tokens.pop_front() {
-        rest = parse(tokens, next);
+        rest = parse(tokens, &next)?;
     } else {
-        err_report!(CompileErr::IllegalEOF.into())
+        return Err(CompileErr::IllegalEOF.into());
     }
 
-    return Some((oper, Box::new(rest)));
+    return Ok(Some((oper, Box::new(rest))));
 }

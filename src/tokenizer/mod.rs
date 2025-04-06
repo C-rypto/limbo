@@ -2,12 +2,12 @@ use std::fs;
 
 use read_values::{read_identi, read_number, read_string, read_unknow};
 
-use crate::common::{Keyword, Symbol, Token, TokenStream, TokenType};
+use crate::common::{error::ErrorType, Keyword, Symbol, Token, TokenStream, TokenType};
 
 mod read_values;
 
-pub fn tokenize(path: &String) -> TokenStream {
-    let src = fs::read_to_string(path).expect("无法正常读取文件！");
+pub fn tokenize(path: &String) -> Result<TokenStream, ErrorType> {
+    let src = fs::read_to_string(path)?;
 
     let mut stream = TokenStream::new();
 
@@ -16,13 +16,13 @@ pub fn tokenize(path: &String) -> TokenStream {
 
     let mut line = 1_u32;
     let mut offset = 0_u32;
-	let mut start_offset;
+    let mut start_offset;
 
     loop {
         let ch = if cache != '\0' {
             cache
         } else if let Some(ch) = chars.next() {
-			offset += 1;
+            offset += 1;
             ch
         } else {
             break;
@@ -31,7 +31,7 @@ pub fn tokenize(path: &String) -> TokenStream {
 
         if ch.is_ascii_alphabetic() {
             let value;
-			start_offset = offset;
+            start_offset = offset;
             (cache, value, offset) = read_identi(&mut chars, ch, offset);
 
             if let Some(value) = Keyword::is_keyword(&value) {
@@ -48,7 +48,7 @@ pub fn tokenize(path: &String) -> TokenStream {
             continue;
         } else if ch.is_ascii_digit() {
             let value;
-			start_offset = offset;
+            start_offset = offset;
             (cache, value, offset) = read_number(&mut chars, ch, offset);
 
             stream.push_back(Token::new(
@@ -61,7 +61,7 @@ pub fn tokenize(path: &String) -> TokenStream {
         match ch {
             '\'' | '\"' => {
                 let value;
-				start_offset = offset;
+                start_offset = offset;
                 (cache, value, line, offset) = read_string(&mut chars, line, offset);
 
                 stream.push_back(Token::new(
@@ -72,7 +72,7 @@ pub fn tokenize(path: &String) -> TokenStream {
             ' ' | '\r' | '\t' => continue,
             '\n' => {
                 stream.push_back(Token::new(TokenType::EOL, (path.to_string(), line, offset)));
-				
+
                 line += 1;
                 offset = 0;
             }
@@ -84,7 +84,7 @@ pub fn tokenize(path: &String) -> TokenStream {
                     ));
                 } else {
                     let value;
-					start_offset = offset;
+                    start_offset = offset;
                     (cache, value, offset) = read_unknow(&mut chars, ch, offset);
 
                     stream.push_back(Token::new(
@@ -96,5 +96,5 @@ pub fn tokenize(path: &String) -> TokenStream {
         }
     }
 
-    return stream;
+    return Ok(stream);
 }

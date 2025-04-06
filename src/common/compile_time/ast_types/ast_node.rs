@@ -24,11 +24,11 @@ impl From<StmtNode> for ASTNode {
     }
 }
 
-impl core::fmt::Display for ASTNode {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Stmt(node) => write!(f, "Stmt{}", node),
-            Self::Expr(node) => write!(f, "Expr{}", node),
-        }
-    }
-}
+// impl core::fmt::Display for ASTNode {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         match self {
+//             Self::Stmt(node) => write!(f, "Stmt{}", node),
+//             Self::Expr(node) => write!(f, "Expr{}", node),
+//         }
+//     }
+// }

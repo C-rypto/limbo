@@ -5,17 +5,18 @@ use crate::common::{
         ast_node::{ASTNode, ASTStream},
         Root,
     },
+    error::ErrorType,
     TokenStream,
 };
 
 mod ast_parser;
 
-pub fn analyze(tokens: &mut TokenStream) -> Root {
+pub fn analyze(tokens: &mut TokenStream) -> Result<Root, ErrorType> {
     let mut stream = ASTStream::new();
 
     while let Some(next) = tokens.pop_front() {
-        stream.push_back(ASTNode::Stmt(stmt::parse(tokens, next)));
+        stream.push_back(ASTNode::Stmt(stmt::parse(tokens, next)?));
     }
 
-    return Root { nodes: stream };
+    return Ok(Root { nodes: stream });
 }

@@ -1,9 +1,30 @@
-use crate::common::values::Value;
+use crate::common::{compile_time::Location, error::Locatable, values::Value};
 
 use super::ExprNode;
 
 #[derive(Clone, PartialEq)]
-pub enum AtomNode {
+pub struct AtomNode {
+    pub node_type: AtomNodeType,
+    pub pos: Location,
+}
+
+impl AtomNode {
+    pub fn new(node_type: AtomNodeType, pos: &Location) -> AtomNode {
+        return AtomNode {
+            node_type,
+            pos: pos.clone(),
+        };
+    }
+}
+
+impl Locatable for AtomNode {
+    fn get_pos(&self) -> String {
+        return format!("{}:{}:{}", self.pos.0, self.pos.1, self.pos.2);
+    }
+}
+
+#[derive(Clone, PartialEq)]
+pub enum AtomNodeType {
     Val(Value),
     Idt(String),
     Expr(Box<ExprNode>),
@@ -11,10 +32,16 @@ pub enum AtomNode {
 
 impl core::fmt::Display for AtomNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        return self.node_type.fmt(f);
+    }
+}
+
+impl core::fmt::Display for AtomNodeType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Val(val) => write!(f, "\n- Atom: {}", val),
-            Self::Idt(idt) => write!(f, "\n- Atom: {}", idt),
-            Self::Expr(exp) => write!(f, "\n- Atom: {}", exp),
+            Self::Val(val) => write!(f, "{}", val),
+            Self::Idt(idt) => write!(f, "{}", idt),
+            Self::Expr(exp) => write!(f, "{}", exp),
         }
     }
 }

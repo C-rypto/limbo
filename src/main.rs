@@ -1,5 +1,7 @@
 use std::env;
 
+use common::error;
+
 mod analyzer;
 mod common;
 mod computer;
@@ -10,10 +12,10 @@ fn main() {
     args.next();
 
     if let Some(path) = args.next() {
-        let mut tokens = tokenizer::tokenize(&path);
-		
-        let root = analyzer::analyze(&mut tokens);
+        let mut tokens = error::unwrap(tokenizer::tokenize(&path));
 
-        computer::compute(root);
+        let root = error::unwrap(analyzer::analyze(&mut tokens));
+
+        error::unwrap(computer::compute(root));
     }
 }

@@ -22,7 +22,7 @@ impl MathExprNode {
 impl core::fmt::Display for MathExprNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.right_hand {
-            Some((op, right)) => write!(f, "\n- MathExpr: {},{},{}", self.left_hand, op, right),
+            Some((op, right)) => write!(f, "{},{},{}", self.left_hand, op, right),
             None => write!(f, "{}", self.left_hand),
         }
     }

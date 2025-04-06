@@ -2,46 +2,45 @@ use crate::{
     analyzer::ast_parser::term,
     common::{
         compile_time::ast_types::node_types::{ExprNode, MathExprNode, MathExprRest},
-        error::CompileErr,
+        error::{CompileErr, ErrorType},
         Symbol, Token, TokenStream, TokenType,
     },
-    err_report,
 };
 
-pub fn parse(tokens: &mut TokenStream, current: Token) -> ExprNode {
-    let left_hand = term::parse(tokens, current);
+pub fn parse(tokens: &mut TokenStream, current: &Token) -> Result<ExprNode, ErrorType> {
+    let left_hand = term::parse(tokens, current)?;
 
     if let Some(next) = tokens.pop_front() {
-        let right_hand = parse_rest(tokens, next);
-        return ExprNode::Math(MathExprNode::new(left_hand, right_hand));
+        let right_hand = parse_rest(tokens, next)?;
+        return Ok(ExprNode::Math(MathExprNode::new(left_hand, right_hand)));
     } else {
-        return ExprNode::Math(MathExprNode::new(left_hand, None));
+        return Ok(ExprNode::Math(MathExprNode::new(left_hand, None)));
     }
 }
 
-fn parse_rest(tokens: &mut TokenStream, current: Token) -> Option<MathExprRest> {
+fn parse_rest(tokens: &mut TokenStream, current: Token) -> Result<Option<MathExprRest>, ErrorType> {
     let oper: Symbol;
-    match current.token_type {
+    match &current.token_type {
         TokenType::Symbols(sym) => match sym {
-            Symbol::Add | Symbol::Sub => oper = sym,
-            Symbol::RParen => return None,
-            _ => err_report!(CompileErr::Unexpected(sym.to_string()).into()),
+            Symbol::Add | Symbol::Sub => oper = sym.clone(),
+            Symbol::RParen => return Ok(None),
+            _ => return Err(CompileErr::Unexpected(Box::new(current)).into()),
         },
         TokenType::Keyword(..) => {
             tokens.push_front(current);
-            return None;
+            return Ok(None);
         }
-        TokenType::EOL => return None,
-		TokenType::Unknown(..) => err_report!(CompileErr::UnknownTok(current).into()),
-        _ => err_report!(CompileErr::Unexpected(current.to_string()).into()),
+        TokenType::EOL => return Ok(None),
+        TokenType::Unknown(..) => return Err(CompileErr::UnknownTok(Box::new(current)).into()),
+        _ => return Err(CompileErr::Unexpected(Box::new(current)).into()),
     }
 
     let right_hand: ExprNode;
     if let Some(next) = tokens.pop_front() {
-        right_hand = parse(tokens, next);
+        right_hand = parse(tokens, &next)?;
     } else {
-        err_report!(CompileErr::IllegalEOF.into())
+        return Err(CompileErr::IllegalEOF.into());
     }
 
-    return Some((oper, Box::new(right_hand)));
+    return Ok(Some((oper, Box::new(right_hand))));
 }
