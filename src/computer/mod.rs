@@ -19,11 +19,11 @@ pub fn compute(root: Root) -> Result<(), ErrorType> {
             ASTNode::Stmt(stmt) => match stmt {
                 StmtNode::Var(idt, exp) => {
                     let val = reader.expr(&exp)?;
-                    reader.push(idt.to_string(), val);
+                    reader.push(idt.to_string(), val.0);
                 }
                 StmtNode::Out(exp) => {
                     let val = reader.expr(&exp)?;
-                    print!("{}", val.output());
+                    print!("{}", val.0.output());
                     std::io::stdout().flush().unwrap();
                 }
             },

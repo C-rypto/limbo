@@ -2,8 +2,10 @@ mod keyword;
 mod symbols;
 
 use {
-    super::Location,
-    crate::common::{error::Locatable, values::Value},
+    crate::common::{
+        utils::{Locatable, Location},
+        values::Value,
+    },
     colored::Colorize,
     std::collections::VecDeque,
 };
@@ -27,7 +29,7 @@ impl Token {
 }
 
 impl Locatable for Token {
-    fn get_pos(&self) -> String {
+    fn locate(&self) -> String {
         return format!("{}:{}:{}", self.pos.0, self.pos.1, self.pos.2);
     }
 }

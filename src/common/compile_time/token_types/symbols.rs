@@ -1,4 +1,8 @@
-use crate::common::values::Value;
+use crate::common::{
+    error::{ErrorType, RuntimeErr},
+    utils::{add_sub_type, mul_div_type, LocatableValue, Location},
+    values::Value,
+};
 
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
@@ -24,14 +28,24 @@ impl Symbol {
         return None;
     }
 
-    pub fn binary_operate(&self, left: Value, right: Value) -> Value {
-        match self {
-            Self::Add => left + right,
-            Self::Sub => left - right,
-            Self::Mul => left * right,
-            Self::Div => left / right,
-            _ => unreachable!(),
-        }
+    pub fn binary_operate(
+        &self,
+        left: Value,
+        right: Value,
+		left_pos: &Location,
+        right_pos: &Location,
+    ) -> Result<Value, ErrorType> {
+        match (self, add_sub_type(&left, &right), mul_div_type(&left, &right)) {
+			(Self::Add, true, ..) => return Ok(left+right),
+			(Self::Sub, true, ..) => return Ok(left-right),
+			(Self::Mul, .., true) => return Ok(left*right),
+			(Self::Div, .., true) => return Ok(left/right),
+			_ => {
+				let left_val = Box::new(LocatableValue(left, left_pos.clone()));
+				let right_val = Box::new(LocatableValue(right, right_pos.clone()));
+				return Err(RuntimeErr::TypeError(left_val, right_val).into());
+			}
+		}
     }
 }
 

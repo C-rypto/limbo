@@ -2,10 +2,6 @@ use std::ops::{Add, Div, Mul, Sub};
 
 use colored::Colorize;
 
-use crate::err_report;
-
-use super::error::RuntimeErr;
-
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub enum Value {
@@ -17,7 +13,7 @@ impl Value {
     pub fn number(self) -> f64 {
         match self {
             Self::Number(num) => num,
-            _ => err_report!(RuntimeErr::TypeError(self).into()),
+            _ => unreachable!(),
         }
     }
 
@@ -57,7 +53,7 @@ impl Sub for Value {
     fn sub(self, rhs: Self) -> Self::Output {
         match self {
             Value::Number(num) => Value::Number(num - rhs.number()),
-            Value::String(..) => err_report!(RuntimeErr::TypeError(self).into()),
+            Value::String(..) => unreachable!(),
         }
     }
 }
@@ -77,7 +73,7 @@ impl Div for Value {
     fn div(self, rhs: Self) -> Self::Output {
         match self {
             Value::Number(num) => Value::Number(num / rhs.number()),
-            Value::String(..) => err_report!(RuntimeErr::TypeError(self).into()),
+            Value::String(..) => unreachable!(),
         }
     }
 }

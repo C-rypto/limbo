@@ -1,4 +1,4 @@
-use super::Locatable;
+use crate::common::utils::{indent, Locatable};
 
 pub enum CompileErr {
     IllegalEOF,
@@ -14,14 +14,16 @@ impl core::fmt::Display for CompileErr {
             Self::BasicError(err) => write!(f, "{}", err),
             Self::UnknownTok(sth) => write!(
                 f,
-                "\n  pos: {}\n  msg: `{}` is a unknown token.",
-                sth.get_pos(),
+                "`{}`\n{}`{}` is a unknown token.",
+                sth.locate(),
+                indent(1),
                 sth.to_string()
             ),
             Self::Unexpected(sth) => write!(
                 f,
-                "\n  pos: {}\n  msg: `{}` is a unexpected token.",
-                sth.get_pos(),
+                "`{}`\n{}`{}` is a unexpected token.",
+                sth.locate(),
+                indent(1),
                 sth.to_string()
             ),
         }

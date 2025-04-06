@@ -7,10 +7,6 @@ mod runtime_err;
 
 pub use {compile_err::CompileErr, runtime_err::RuntimeErr};
 
-pub trait Locatable: ToString {
-    fn get_pos(&self) -> String;
-}
-
 #[macro_export]
 macro_rules! err_report {
     ($err: expr) => {
@@ -26,7 +22,7 @@ pub fn report(err: ErrorType) -> ! {
         }
     };
 
-    eprint!("\n{}{}\n\n", header, msg);
+    eprint!("\n{} at {}\n\n", header, msg);
     exit(-1)
 }
 

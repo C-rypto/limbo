@@ -1,4 +1,7 @@
-use crate::common::{compile_time::Location, error::Locatable, values::Value};
+use crate::common::{
+    utils::{Locatable, Location},
+    values::Value,
+};
 
 use super::ExprNode;
 
@@ -18,7 +21,7 @@ impl AtomNode {
 }
 
 impl Locatable for AtomNode {
-    fn get_pos(&self) -> String {
+    fn locate(&self) -> String {
         return format!("{}:{}:{}", self.pos.0, self.pos.1, self.pos.2);
     }
 }
