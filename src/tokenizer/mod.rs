@@ -1,95 +1,84 @@
 use std::fs;
 
-use read_values::{read_identi, read_number, read_string, read_unknow};
-
-use crate::common::{error::ErrorType, Keyword, Symbol, Token, TokenStream, TokenType};
-
-mod read_values;
+use crate::common::{error::ErrorType, utils::Source, Keyword, Symbol, Token, TokenStream, TokenType};
 
 pub fn tokenize(path: &String) -> Result<TokenStream, ErrorType> {
     let src = fs::read_to_string(path)?;
+	let mut src = Source::new(src.chars());
+    // let mut chars = src.chars();
 
     let mut stream = TokenStream::new();
 
-    let mut chars = src.chars();
-    let mut cache = '\0';
-
-    let mut line = 1_u32;
-    let mut offset = 0_u32;
     let mut start_offset;
 
     loop {
-        let ch = if cache != '\0' {
-            cache
-        } else if let Some(ch) = chars.next() {
-            offset += 1;
+        let ch = if src.cache != '\0' {
+            src.cache
+        } else if let Some(ch) = src.next() {
+            // offset += 1;
             ch
         } else {
             break;
         };
-        cache = '\0';
+        src.reset_cache();
 
         if ch.is_ascii_alphabetic() {
-            let value;
-            start_offset = offset;
-            (cache, value, offset) = read_identi(&mut chars, ch, offset);
+            start_offset = src.offset;
+            let value = src.read_identi();
 
             if let Some(value) = Keyword::is_keyword(&value) {
                 stream.push_back(Token::new(
                     TokenType::Keyword(value),
-                    (path.to_string(), line, start_offset),
+                    (path.to_string(), src.line, start_offset),
                 ));
             } else {
                 stream.push_back(Token::new(
                     TokenType::Identif(value),
-                    (path.to_string(), line, start_offset),
+                    (path.to_string(), src.line, start_offset),
                 ));
             }
             continue;
         } else if ch.is_ascii_digit() {
-            let value;
-            start_offset = offset;
-            (cache, value, offset) = read_number(&mut chars, ch, offset);
+            start_offset = src.offset;
+            let value = src.read_number();
 
             stream.push_back(Token::new(
                 TokenType::Literal(value),
-                (path.to_string(), line, start_offset),
+                (path.to_string(), src.line, start_offset),
             ));
             continue;
         }
 
         match ch {
             '\'' | '\"' => {
-                let value;
-                start_offset = offset;
-                (cache, value, line, offset) = read_string(&mut chars, line, offset);
+                start_offset = src.offset;
+                let value = src.read_string();
 
                 stream.push_back(Token::new(
                     TokenType::Literal(value),
-                    (path.to_string(), line, start_offset),
+                    (path.to_string(), src.line, start_offset),
                 ));
             }
             ' ' | '\r' | '\t' => continue,
             '\n' => {
-                stream.push_back(Token::new(TokenType::EOL, (path.to_string(), line, offset)));
+                stream.push_back(Token::new(TokenType::EOL, (path.to_string(), src.line, src.offset)));
 
-                line += 1;
-                offset = 0;
+                src.line += 1;
+                src.offset = 0;
             }
             _ => {
                 if let Some(symbol) = Symbol::is_symbol(ch) {
                     stream.push_back(Token::new(
                         TokenType::Symbols(symbol),
-                        (path.to_string(), line, offset),
+                        (path.to_string(), src.line, src.offset),
                     ));
                 } else {
-                    let value;
-                    start_offset = offset;
-                    (cache, value, offset) = read_unknow(&mut chars, ch, offset);
+                    start_offset = src.offset;
+                    let value = src.read_unknow();
 
                     stream.push_back(Token::new(
                         TokenType::Unknown(value),
-                        (path.to_string(), line, start_offset),
+                        (path.to_string(), src.line, start_offset),
                     ));
                 }
             }

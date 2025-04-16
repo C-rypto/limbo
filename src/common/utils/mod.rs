@@ -1,8 +1,9 @@
 use super::values::Value;
 
 mod location;
+mod source;
 
-pub use location::*;
+pub use {location::*, source::*};
 
 pub fn indent(level: usize) -> String {
     return "    ".repeat(level);
