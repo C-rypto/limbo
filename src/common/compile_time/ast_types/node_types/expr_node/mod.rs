@@ -1,18 +1,35 @@
 mod atom_node;
-mod math_expr;
+mod comp_node;
+mod logic_node;
+mod math_node;
 mod term_node;
+mod unary_node;
 
-pub use {atom_node::*, math_expr::*, term_node::*};
+use crate::common::utils::Locatable;
+pub use {atom_node::*, comp_node::*, logic_node::*, math_node::*, term_node::*, unary_node::*};
 
 #[derive(Clone, PartialEq)]
-pub enum ExprNode {
-    Math(MathExprNode),
+pub struct ExprNode {
+    pub inner: LogicNode,
+}
+
+impl Locatable for ExprNode {
+    fn locate(&self) -> String {
+        return format!(
+            "{}",
+            self.inner
+                .left_hand
+                .left_hand
+                .left_hand
+                .left_hand
+                .atom
+                .locate()
+        );
+    }
 }
 
 impl core::fmt::Display for ExprNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Math(math) => write!(f, "{}", math),
-        }
+        return self.inner.fmt(f);
     }
 }

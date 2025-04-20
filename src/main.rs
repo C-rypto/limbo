@@ -12,10 +12,10 @@ fn main() {
     args.next();
 
     if let Some(path) = args.next() {
-        let mut tokens = error::unwrap(tokenizer::tokenize(&path));
+        let mut tokens: common::TokenStream = error::unwrap(tokenizer::tokenize(&path));
 
         let root = error::unwrap(analyzer::analyze(&mut tokens));
 
-        error::unwrap(computer::compute(root));
+        error::unwrap(computer::compute(root, None));
     }
 }

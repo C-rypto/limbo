@@ -1,15 +1,17 @@
 mod keyword;
 mod symbols;
 
+mod token_stream;
+mod token_tag;
+
 use {
     crate::common::{
         utils::{Locatable, Location},
         values::Value,
     },
     colored::Colorize,
-    std::collections::VecDeque,
 };
-pub use {keyword::Keyword, symbols::Symbol};
+pub use {keyword::Keyword, symbols::Symbol, token_stream::TokenStream, token_tag::TokenTag};
 
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
@@ -23,14 +25,34 @@ impl Token {
         return Token { token_type, pos };
     }
 
-    pub fn get_mark(&self) -> String {
-        return self.token_type.get_mark();
+    pub fn get_tag(&self) -> TokenTag {
+        return self.token_type.get_tag();
+    }
+
+    pub fn get_file(&self) -> String {
+        return self.pos.0.clone();
+    }
+
+    pub fn get_line(&self) -> u32 {
+        return self.pos.1;
+    }
+
+    pub fn get_offset(&self) -> u32 {
+        return self.pos.2;
+    }
+
+    pub fn get_end_pos(&self) -> Location {
+        return Location::from((
+            self.get_file(),
+            self.get_line(),
+            self.get_offset() + (self.to_string().len() as u32),
+        ));
     }
 }
 
 impl Locatable for Token {
     fn locate(&self) -> String {
-        return format!("{}:{}:{}", self.pos.0, self.pos.1, self.pos.2);
+        return format!("{}", self.pos);
     }
 }
 
@@ -38,6 +60,7 @@ impl Locatable for Token {
 #[derive(Clone, PartialEq)]
 pub enum TokenType {
     EOL,
+    WhiteSpace(usize),
 
     Unknown(String),
 
@@ -48,19 +71,10 @@ pub enum TokenType {
 }
 
 impl TokenType {
-    pub fn get_mark(&self) -> String {
-        match self {
-            Self::EOL => "eol".to_string(),
-            Self::Unknown(..) => "unk".to_string(),
-            Self::Symbols(sym) => sym.to_string(),
-            Self::Literal(..) => "lit".to_string(),
-            Self::Identif(..) => "idt".to_string(),
-            Self::Keyword(..) => "kwd".to_string(),
-        }
+    pub fn get_tag(&self) -> TokenTag {
+        TokenTag::new(self)
     }
 }
-
-pub type TokenStream = VecDeque<Token>;
 
 impl core::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -72,6 +86,7 @@ impl core::fmt::Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::EOL => write!(f, "\\n"),
+            Self::WhiteSpace(num) => write!(f, "{}", " ".repeat(*num)),
 
             Self::Unknown(lexeme) => write!(f, "{}", lexeme.red().underline()),
             Self::Symbols(symbols) => write!(f, "{}", symbols),

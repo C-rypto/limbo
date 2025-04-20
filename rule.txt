@@ -6,18 +6,39 @@ Seq'	->	Stmt
 
 Stmt	->	var <idt> = Expr
 		|	out Expr
+		|	if Expr : Seq If-Rest
+If-Rest	->	;
+		|	else: Seq ;
 
-Expr	->	Term Expr'
-		|	Term Expr'
-Expr'	->	+ Expr
-		|	- Expr
+Expr	->	Logic
+
+Logic	->	Comp Logic'
+Logic'	->	&& Logic
+		|	|| Logic
 		|	$
 
-Term	->	Atom Term'
-		|	Atom Term'
+Comp	->	Math Comp'
+Comp'	->	== Comp
+		|	!= Comp
+		|	> Comp
+		|	>= Comp
+		|	< Comp
+		|	<= Comp
+		|	$
+
+Math	->	Term Math'
+Math'	->	+ Math
+		|	- Math
+		|	$
+
+Term	->	Unary Term'
 Term'	->	* Term
 		|	/ Term
 		|	$
+
+Unary	->	! Atom
+		|	- Atom
+		|	Atom
 
 Atom	->	( Expr )
 		|	<val>

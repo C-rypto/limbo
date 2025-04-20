@@ -1,6 +1,7 @@
 use crate::common::{
     compile_time::ast_types::node_types::{
-        expr_node::AtomNode, AtomNodeType, ExprNode, MathExprNode, TermNode,
+        expr_node::{AtomNode, CompNode, LogicNode, UnaryNode},
+        AtomNodeType, ExprNode, MathNode, TermNode,
     },
     error::{ErrorType, RuntimeErr},
     run_time::env::Environment,
@@ -13,7 +14,8 @@ pub struct ValueReader {
 }
 
 impl ValueReader {
-    pub fn new(environment: Box<Environment>) -> ValueReader {
+    pub fn new(environment: &Environment) -> ValueReader {
+        let environment = Box::new(environment.clone());
         return ValueReader { environment };
     }
 
@@ -32,31 +34,73 @@ impl ValueReader {
         }
     }
 
+    pub fn unary(&mut self, node: &UnaryNode) -> Result<(Value, Location), ErrorType> {
+        let (value, pos) = self.atom(&node.atom)?;
+        match &node.op {
+            Some(oper) => {
+                return Ok((oper.unary_operate(value, &pos)?, pos));
+            }
+            None => return Ok((value, pos)),
+        }
+    }
+
     pub fn term(&mut self, node: &TermNode) -> Result<(Value, Location), ErrorType> {
-        let (left, left_pos) = self.atom(&node.left_hand)?;
+        let (left, left_pos) = self.unary(&node.left_hand)?;
         match &node.right_hand {
             Some((op, right)) => {
                 let (right, right_pos) = self.term(&right)?;
-                return Ok((op.binary_operate(left, right, &left_pos ,&right_pos)?, right_pos));
+                return Ok((
+                    op.binary_operate(left, right, &left_pos, &right_pos)?,
+                    right_pos,
+                ));
             }
             None => return Ok((left, left_pos)),
         }
     }
 
-    pub fn math_expr(&mut self, node: &MathExprNode) -> Result<(Value, Location), ErrorType> {
+    pub fn math(&mut self, node: &MathNode) -> Result<(Value, Location), ErrorType> {
         let (left, left_pos) = self.term(&node.left_hand)?;
         match &node.right_hand {
             Some((op, right)) => {
-                let (right, right_pos) = self.expr(&right)?;
-                return Ok((op.binary_operate(left, right, &left_pos, &right_pos)?, right_pos));
+                let (right, right_pos) = self.math(&right)?;
+                return Ok((
+                    op.binary_operate(left, right, &left_pos, &right_pos)?,
+                    right_pos,
+                ));
+            }
+            None => return Ok((left, left_pos)),
+        }
+    }
+
+    pub fn comp(&mut self, node: &CompNode) -> Result<(Value, Location), ErrorType> {
+        let (left, left_pos) = self.math(&node.left_hand)?;
+        match &node.right_hand {
+            Some((op, right)) => {
+                let (right, right_pos) = self.comp(&right)?;
+                return Ok((
+                    op.binary_operate(left, right, &left_pos, &right_pos)?,
+                    right_pos,
+                ));
+            }
+            None => return Ok((left, left_pos)),
+        }
+    }
+
+    pub fn logic(&mut self, node: &LogicNode) -> Result<(Value, Location), ErrorType> {
+        let (left, left_pos) = self.comp(&node.left_hand)?;
+        match &node.right_hand {
+            Some((op, right)) => {
+                let (right, right_pos) = self.logic(&right)?;
+                return Ok((
+                    op.binary_operate(left, right, &left_pos, &right_pos)?,
+                    right_pos,
+                ));
             }
             None => return Ok((left, left_pos)),
         }
     }
 
     pub fn expr(&mut self, node: &ExprNode) -> Result<(Value, Location), ErrorType> {
-        match &node {
-            ExprNode::Math(math_exp) => self.math_expr(math_exp),
-        }
+        return self.logic(&node.inner);
     }
 }

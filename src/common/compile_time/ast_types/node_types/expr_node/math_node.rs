@@ -1,25 +1,25 @@
-use crate::common::compile_time::token_types::Symbol;
+use crate::common::compile_time::tokens::Symbol;
 
-use super::{ExprNode, TermNode};
+use super::TermNode;
 
 #[derive(Clone, PartialEq)]
-pub struct MathExprNode {
+pub struct MathNode {
     pub left_hand: TermNode,
-    pub right_hand: Option<MathExprRest>,
+    pub right_hand: Option<MathRest>,
 }
 
-pub type MathExprRest = (Symbol, Box<ExprNode>);
+pub type MathRest = (Symbol, Box<MathNode>);
 
-impl MathExprNode {
-    pub fn new(left_hand: TermNode, right_hand: Option<MathExprRest>) -> MathExprNode {
-        MathExprNode {
+impl MathNode {
+    pub fn new(left_hand: TermNode, right_hand: Option<MathRest>) -> MathNode {
+        MathNode {
             left_hand,
             right_hand,
         }
     }
 }
 
-impl core::fmt::Display for MathExprNode {
+impl core::fmt::Display for MathNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.right_hand {
             Some((op, right)) => write!(f, "{},{},{}", self.left_hand, op, right),

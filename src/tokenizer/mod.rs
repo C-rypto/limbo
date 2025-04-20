@@ -1,10 +1,12 @@
 use std::fs;
 
-use crate::common::{error::ErrorType, utils::Source, Keyword, Symbol, Token, TokenStream, TokenType};
+use crate::common::{
+    error::ErrorType, utils::Source, values::Value, Keyword, Symbol, Token, TokenStream, TokenType,
+};
 
 pub fn tokenize(path: &String) -> Result<TokenStream, ErrorType> {
     let src = fs::read_to_string(path)?;
-	let mut src = Source::new(src.chars());
+    let mut src = Source::new(path, src.chars());
     // let mut chars = src.chars();
 
     let mut stream = TokenStream::new();
@@ -12,29 +14,31 @@ pub fn tokenize(path: &String) -> Result<TokenStream, ErrorType> {
     let mut start_offset;
 
     loop {
-        let ch = if src.cache != '\0' {
-            src.cache
-        } else if let Some(ch) = src.next() {
-            // offset += 1;
+        let ch = if let Some(ch) = src.next() {
             ch
         } else {
             break;
         };
-        src.reset_cache();
+        // src.reset_cache();
 
         if ch.is_ascii_alphabetic() {
             start_offset = src.offset;
-            let value = src.read_identi();
+            let word = src.read_identi();
 
-            if let Some(value) = Keyword::is_keyword(&value) {
-                stream.push_back(Token::new(
-                    TokenType::Keyword(value),
-                    (path.to_string(), src.line, start_offset),
+            if let Some(value) = Value::try_boolean(&word) {
+                stream.push(Token::new(
+                    TokenType::Literal(value),
+                    (src.path(), src.line, start_offset).into(),
+                ));
+            } else if let Some(keyword) = Keyword::is_keyword(&word) {
+                stream.push(Token::new(
+                    TokenType::Keyword(keyword),
+                    (src.path(), src.line, start_offset).into(),
                 ));
             } else {
-                stream.push_back(Token::new(
-                    TokenType::Identif(value),
-                    (path.to_string(), src.line, start_offset),
+                stream.push(Token::new(
+                    TokenType::Identif(word),
+                    (src.path(), src.line, start_offset).into(),
                 ));
             }
             continue;
@@ -42,9 +46,9 @@ pub fn tokenize(path: &String) -> Result<TokenStream, ErrorType> {
             start_offset = src.offset;
             let value = src.read_number();
 
-            stream.push_back(Token::new(
+            stream.push(Token::new(
                 TokenType::Literal(value),
-                (path.to_string(), src.line, start_offset),
+                (src.path(), src.line, start_offset).into(),
             ));
             continue;
         }
@@ -52,33 +56,55 @@ pub fn tokenize(path: &String) -> Result<TokenStream, ErrorType> {
         match ch {
             '\'' | '\"' => {
                 start_offset = src.offset;
-                let value = src.read_string();
+                let value = src.read_string()?;
 
-                stream.push_back(Token::new(
+                stream.push(Token::new(
                     TokenType::Literal(value),
-                    (path.to_string(), src.line, start_offset),
+                    (src.path(), src.line, start_offset).into(),
                 ));
             }
-            ' ' | '\r' | '\t' => continue,
+            ' ' | '\r' | '\t' => {
+                stream.push(Token::new(
+                    TokenType::WhiteSpace(1),
+                    (src.path(), src.line, src.offset).into(),
+                ));
+            }
             '\n' => {
-                stream.push_back(Token::new(TokenType::EOL, (path.to_string(), src.line, src.offset)));
+                stream.push(Token::new(
+                    TokenType::EOL,
+                    (src.path(), src.line, src.offset).into(),
+                ));
 
                 src.line += 1;
                 src.offset = 0;
             }
             _ => {
-                if let Some(symbol) = Symbol::is_symbol(ch) {
-                    stream.push_back(Token::new(
+                start_offset = src.offset;
+                if let Some(next) = src.next() {
+                    let word = format!("{}{}", ch, next);
+                    match Symbol::try_symbol(word) {
+                        Some(symbol) => {
+                            stream.push(Token::new(
+                                TokenType::Symbols(symbol),
+                                (src.path(), src.line, start_offset).into(),
+                            ));
+                            continue;
+                        }
+                        None => src.undo(),
+                    }
+                }
+                if let Some(symbol) = Symbol::try_symbol(ch) {
+                    stream.push(Token::new(
                         TokenType::Symbols(symbol),
-                        (path.to_string(), src.line, src.offset),
+                        (src.path(), src.line, start_offset).into(),
                     ));
                 } else {
                     start_offset = src.offset;
                     let value = src.read_unknow();
 
-                    stream.push_back(Token::new(
+                    stream.push(Token::new(
                         TokenType::Unknown(value),
-                        (path.to_string(), src.line, start_offset),
+                        (src.path(), src.line, start_offset).into(),
                     ));
                 }
             }

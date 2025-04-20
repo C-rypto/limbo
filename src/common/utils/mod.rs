@@ -9,6 +9,25 @@ pub fn indent(level: usize) -> String {
     return "    ".repeat(level);
 }
 
+pub fn logical_type(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Number(..), Value::Number(..))
+        | (Value::Bool(..), Value::Bool(..))
+        | (Value::Bool(..), Value::Number(..))
+        | (Value::Number(..), Value::Bool(..)) => return true,
+        _ => return false,
+    }
+}
+
+pub fn compare_type(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Number(..), Value::Number(..)) | (Value::String(..), Value::String(..)) => {
+            return true
+        }
+        _ => return false,
+    }
+}
+
 pub fn mul_div_type(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Number(..), Value::Number(..)) | (Value::String(..), Value::String(..)) => {

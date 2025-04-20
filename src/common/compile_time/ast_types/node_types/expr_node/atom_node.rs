@@ -22,7 +22,7 @@ impl AtomNode {
 
 impl Locatable for AtomNode {
     fn locate(&self) -> String {
-        return format!("{}:{}:{}", self.pos.0, self.pos.1, self.pos.2);
+        return format!("{}", self.pos);
     }
 }
 

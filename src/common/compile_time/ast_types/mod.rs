@@ -1,8 +1,13 @@
-use ast_node::ASTStream;
+pub use node_types::stmt_node::Sequence;
 
-pub mod ast_node;
 pub mod node_types;
 
 pub struct Root {
-    pub nodes: ASTStream,
+    pub nodes: Sequence,
+}
+
+impl Root {
+    pub fn new(nodes: Sequence) -> Self {
+        Self { nodes }
+    }
 }

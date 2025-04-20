@@ -5,4 +5,4 @@ pub mod error;
 pub mod utils;
 pub mod values;
 
-pub use compile_time::token_types::*;
+pub use compile_time::tokens::*;

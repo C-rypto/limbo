@@ -1,17 +1,17 @@
-use crate::common::compile_time::token_types::Symbol;
+use crate::common::compile_time::tokens::Symbol;
 
-use super::AtomNode;
+use super::unary_node::UnaryNode;
 
 #[derive(Clone, PartialEq)]
 pub struct TermNode {
-    pub left_hand: AtomNode,
+    pub left_hand: UnaryNode,
     pub right_hand: Option<TermRest>,
 }
 
 pub type TermRest = (Symbol, Box<TermNode>);
 
 impl TermNode {
-    pub fn new(left_hand: AtomNode, right_hand: Option<TermRest>) -> TermNode {
+    pub fn new(left_hand: UnaryNode, right_hand: Option<TermRest>) -> TermNode {
         TermNode {
             left_hand,
             right_hand,

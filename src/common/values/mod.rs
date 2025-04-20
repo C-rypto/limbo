@@ -1,15 +1,62 @@
-use std::ops::{Add, Div, Mul, Sub};
-
+#![cfg_attr(debug_assertions, allow(dead_code))]
 use colored::Colorize;
+
+mod calculate;
 
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub enum Value {
     Number(f64),
     String(String),
+    Bool(bool),
 }
 
 impl Value {
+    pub fn try_boolean<TS>(word: &TS) -> Option<Self>
+    where
+        TS: ToString,
+    {
+        let word = word.to_string();
+        if word == "true" {
+            return Some(Self::Bool(true));
+        } else if word == "false" {
+            return Some(Self::Bool(false));
+        } else {
+            return None;
+        }
+    }
+
+    pub fn and(a: Value, b: Value) -> Value {
+        let (a, b) = (a.boolean(), b.boolean());
+        return Value::Bool(a && b);
+    }
+
+    pub fn or(a: Value, b: Value) -> Value {
+        let (a, b) = (a.boolean(), b.boolean());
+        return Value::Bool(a || b);
+    }
+
+    pub fn is_boolean(&self) -> bool {
+        if let Self::Bool(..) = self {
+            return true;
+        }
+        return false;
+    }
+
+    pub fn is_number(&self) -> bool {
+        if let Self::Number(..) = self {
+            return true;
+        }
+        return false;
+    }
+
+    pub fn is_string(&self) -> bool {
+        if let Self::String(..) = self {
+            return true;
+        }
+        return false;
+    }
+
     pub fn number(self) -> f64 {
         match self {
             Self::Number(num) => num,
@@ -21,6 +68,15 @@ impl Value {
         match self {
             Value::Number(num) => num.to_string(),
             Value::String(str) => str,
+            Value::Bool(bool) => bool.to_string(),
+        }
+    }
+
+    pub fn boolean(self) -> bool {
+        match self {
+            Value::Bool(bool) => bool,
+            Value::Number(num) => num != 0.0,
+            Value::String(..) => unreachable!(),
         }
     }
 
@@ -34,46 +90,7 @@ impl core::fmt::Display for Value {
         match self {
             Self::Number(num) => write!(f, "{}", num),
             Self::String(str) => write!(f, "{}", str),
-        }
-    }
-}
-
-impl Add for Value {
-    type Output = Self;
-    fn add(self, rhs: Self) -> Self::Output {
-        match self {
-            Value::Number(num) => Value::Number(num + rhs.number()),
-            Value::String(str) => Value::String(format!("{}{}", str, rhs.string())),
-        }
-    }
-}
-
-impl Sub for Value {
-    type Output = Self;
-    fn sub(self, rhs: Self) -> Self::Output {
-        match self {
-            Value::Number(num) => Value::Number(num - rhs.number()),
-            Value::String(..) => unreachable!(),
-        }
-    }
-}
-
-impl Mul for Value {
-    type Output = Self;
-    fn mul(self, rhs: Self) -> Self::Output {
-        match self {
-            Value::Number(num) => Value::Number(num * rhs.number()),
-            Value::String(str) => Value::String(str.repeat(rhs.number() as usize)),
-        }
-    }
-}
-
-impl Div for Value {
-    type Output = Self;
-    fn div(self, rhs: Self) -> Self::Output {
-        match self {
-            Value::Number(num) => Value::Number(num / rhs.number()),
-            Value::String(..) => unreachable!(),
+            Self::Bool(bool) => write!(f, "{}", bool),
         }
     }
 }
