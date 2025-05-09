@@ -4,7 +4,7 @@ use value_reader::ValueReader;
 
 use crate::common::{
     compile_time::ast_types::{node_types::stmt_node::StmtNode, Root},
-    error::{ErrorType, RuntimeErr},
+    error::ErrorType,
     run_time::env::Environment,
 };
 
@@ -25,30 +25,10 @@ pub fn compute(root: Root, prev_env: Option<Box<Environment>>) -> Result<(), Err
                 print!("{}", val.0.output());
                 std::io::stdout().flush().unwrap();
             }
-            // StmtNode::IfElse {
-            //     cond,
-            //     if_seq,
-            //     else_seq,
-            // } => {
-            //     let cond_val = reader.expr(&cond)?;
-            //     if cond_val.0.is_boolean() {
-            //         if cond_val.0.boolean() {
-            //             return compute(Root::new(if_seq), Some(Box::new(environment.clone())));
-            //         } else {
-            //             match else_seq {
-            //                 Some(else_seq) => {
-            //                     return compute(
-            //                         Root::new(else_seq),
-            //                         Some(Box::new(environment.clone())),
-            //                     )
-            //                 }
-            //                 None => continue,
-            //             }
-            //         }
-            //     } else {
-            //         return Err(RuntimeErr::TypeError(cond, None).into());
-            //     }
-            // }
+			StmtNode::Block { value } => {
+				let temp_root = Root::new(*value);
+				compute(temp_root, Some(Box::new(environment.clone())))?;
+			}
         }
     }
 

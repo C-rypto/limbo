@@ -11,11 +11,9 @@ pub enum StmtNode {
     Out {
         value: Box<ExprNode>,
     },
-    // IfElse {
-    //     cond: Box<ExprNode>,
-    //     if_seq: Sequence,
-    //     else_seq: Option<Sequence>,
-    // },
+	Block {
+		value: Box<Sequence>,
+	}
 }
 
 pub type Sequence = VecDeque<StmtNode>;
@@ -25,6 +23,12 @@ impl core::fmt::Display for StmtNode {
         match self {
             Self::Var { value, .. } => write!(f, "{}", value),
             Self::Out { value } => write!(f, "{}", value),
+			Self::Block { value } => {
+				for i in value.iter() {
+					write!(f, "{} ", i)?;
+				}
+				write!(f, "")
+			}
             // _ => todo!(),
         }
     }

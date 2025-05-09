@@ -7,3 +7,4 @@ pub mod seq;
 pub mod stmt;
 pub mod term;
 pub mod unary;
+pub mod block;

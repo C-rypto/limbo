@@ -6,9 +6,9 @@ Seq'	->	Stmt
 
 Stmt	->	var <idt> = Expr
 		|	out Expr
-		|	if Expr : Seq If-Rest
-If-Rest	->	;
-		|	else: Seq ;
+		|	Block
+
+Block	->	{ Stmt }
 
 Expr	->	Logic
 

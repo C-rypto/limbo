@@ -26,12 +26,14 @@ pub enum Symbol {
     Assign, // =
     LParen, // (
     RParen, // )
+	LBrace,	// {
+	RBrace,	// }
 
     Colon,     // :
     Semicolon, // ;
 }
 
-pub static SYMBOL_PAIR: [(&'static str, Symbol); 18] = [
+pub static SYMBOL_PAIR: [(&'static str, Symbol); 20] = [
     ("+", Symbol::Add),
     ("-", Symbol::Sub),
     ("*", Symbol::Mul),
@@ -48,6 +50,8 @@ pub static SYMBOL_PAIR: [(&'static str, Symbol); 18] = [
     ("=", Symbol::Assign),
     ("(", Symbol::LParen),
     (")", Symbol::RParen),
+	("{", Symbol::LBrace),
+	("}", Symbol::RBrace),
     (":", Symbol::Colon),
     (";", Symbol::Semicolon),
 ];
@@ -134,6 +138,8 @@ impl core::fmt::Display for Symbol {
 
             Self::LParen => write!(f, "{}", "("),
             Self::RParen => write!(f, "{}", ")"),
+			Self::LBrace => write!(f, "{}", "{"),
+			Self::RBrace => write!(f, "{}", "}"),
 
             Self::Colon => write!(f, "{}", ":"),
             Self::Semicolon => write!(f, "{}", ";"),

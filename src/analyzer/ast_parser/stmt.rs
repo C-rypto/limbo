@@ -1,10 +1,10 @@
 use crate::common::{
-    compile_time::ast_types::{node_types::stmt_node::StmtNode, Sequence},
+    compile_time::ast_types::node_types::stmt_node::StmtNode,
     error::{CompileErr, ErrorType},
     Keyword, Symbol, Token, TokenStream, TokenTag, TokenType,
 };
 
-use super::{expr, seq};
+use super::{block, expr};
 
 pub fn parse(tokens: &mut TokenStream, current: Token) -> Result<StmtNode, ErrorType> {
     match &current.token_type {
@@ -14,6 +14,10 @@ pub fn parse(tokens: &mut TokenStream, current: Token) -> Result<StmtNode, Error
             // Keyword::If => return parse_if_stmt(tokens),
             // Keyword::Else => return Err(CompileErr::Unexpected(Box::new(current)).into()),
         },
+		TokenType::Symbols(sym) => match sym {
+			Symbol::LBrace => return parse_block_stmt(tokens),
+			_ => return Err(CompileErr::Unexpected(Box::new(current)).into()),
+		}
         TokenType::EOL => {
             while let Some(next) = tokens.next() {
                 if next.token_type == TokenType::EOL {
@@ -59,48 +63,7 @@ fn parse_out_stmt(tokens: &mut TokenStream) -> Result<StmtNode, ErrorType> {
     }
 }
 
-// fn parse_if_stmt(tokens: &mut TokenStream) -> Result<StmtNode, ErrorType> {
-//     match tokens.next() {
-//         Some(next) => {
-//             let cond = expr::parse(tokens, &next)?;
-//             tokens.expect(Symbol::Colon.into())?;
-//             let if_seq = seq::parse(tokens)?;
-//             return Ok(StmtNode::IfElse {
-//                 cond: Box::new(cond),
-//                 if_seq,
-//                 else_seq: parse_if_rest(tokens)?,
-//             });
-//         }
-//         None => return Err(CompileErr::IllegalEOF(Box::new(tokens.prev().get_end_pos())).into()),
-//     }
-// }
-
-// fn parse_if_rest(tokens: &mut TokenStream) -> Result<Option<Sequence>, ErrorType> {
-//     if let Some(rest) = tokens.next() {
-//         match &rest.token_type {
-//             TokenType::Symbols(Symbol::Semicolon) => {
-//                 return Ok(None);
-//             }
-//             TokenType::Keyword(Keyword::Else) => {
-//                 tokens.expect(Symbol::Colon.into())?;
-//                 let else_seq = Some(seq::parse(tokens)?);
-// 				tokens.expect(Symbol::Semicolon.into())?;
-//                 return Ok(else_seq);
-//             }
-// 			// TokenType::EOL => {
-// 			// 	while let Some(next) = tokens.next() {
-// 			// 		if next.token_type == TokenType::EOL {
-// 			// 			continue;
-// 			// 		}
-// 			// 		return parse_if_rest(tokens);
-// 			// 	}
-// 			// 	return Err(CompileErr::IllegalEOF(Box::new(rest.get_end_pos())).into());
-// 			// }
-//             _ => {
-//                 return Err(CompileErr::MissSemicolon(Box::new(tokens.prev().get_end_pos())).into())
-//             }
-//         }
-//     } else {
-//         return Err(CompileErr::IllegalEOF(Box::new(tokens.prev().get_end_pos())).into());
-//     }
-// }
+fn parse_block_stmt(tokens: &mut TokenStream) -> Result<StmtNode, ErrorType> {
+	let value = block::parse(tokens)?;
+	todo!()
+}
