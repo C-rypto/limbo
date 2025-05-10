@@ -1,4 +1,5 @@
 pub mod atom;
+pub mod block;
 pub mod comp;
 pub mod expr;
 pub mod logic;
@@ -7,4 +8,3 @@ pub mod seq;
 pub mod stmt;
 pub mod term;
 pub mod unary;
-pub mod block;

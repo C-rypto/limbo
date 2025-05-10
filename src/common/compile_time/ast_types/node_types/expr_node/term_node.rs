@@ -2,6 +2,7 @@ use crate::common::compile_time::tokens::Symbol;
 
 use super::unary_node::UnaryNode;
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub struct TermNode {
     pub left_hand: UnaryNode,

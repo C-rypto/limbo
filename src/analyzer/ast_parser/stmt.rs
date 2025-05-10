@@ -14,10 +14,10 @@ pub fn parse(tokens: &mut TokenStream, current: Token) -> Result<StmtNode, Error
             // Keyword::If => return parse_if_stmt(tokens),
             // Keyword::Else => return Err(CompileErr::Unexpected(Box::new(current)).into()),
         },
-		TokenType::Symbols(sym) => match sym {
-			Symbol::LBrace => return parse_block_stmt(tokens),
-			_ => return Err(CompileErr::Unexpected(Box::new(current)).into()),
-		}
+        TokenType::Symbols(sym) => match sym {
+            Symbol::LBrace => return parse_block_stmt(tokens),
+            _ => return Err(CompileErr::Unexpected(Box::new(current)).into()),
+        },
         TokenType::EOL => {
             while let Some(next) = tokens.next() {
                 if next.token_type == TokenType::EOL {
@@ -64,6 +64,8 @@ fn parse_out_stmt(tokens: &mut TokenStream) -> Result<StmtNode, ErrorType> {
 }
 
 fn parse_block_stmt(tokens: &mut TokenStream) -> Result<StmtNode, ErrorType> {
-	let value = block::parse(tokens)?;
-	todo!()
+    let value = block::parse(tokens)?;
+    return Ok(StmtNode::Block {
+        value: Box::new(value),
+    });
 }

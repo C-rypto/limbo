@@ -2,6 +2,7 @@ use crate::common::Symbol;
 
 use super::MathNode;
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub struct CompNode {
     pub left_hand: MathNode,

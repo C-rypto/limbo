@@ -22,11 +22,11 @@ impl Environment {
         self.table.insert(idt, val);
     }
 
-    pub fn find(&self, idt: &String) -> Option<Value> {
-        match self.table.get(idt) {
+    pub fn find(&self, target: &String) -> Option<Value> {
+        match self.table.get(target) {
             Some(val) => Some(val.clone()),
             None => match &self.prev {
-                Some(env) => env.find(idt),
+                Some(prev) => prev.find(target),
                 None => None,
             },
         }

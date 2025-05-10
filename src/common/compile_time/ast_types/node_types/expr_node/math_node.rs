@@ -2,6 +2,7 @@ use crate::common::compile_time::tokens::Symbol;
 
 use super::TermNode;
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub struct MathNode {
     pub left_hand: TermNode,

@@ -2,6 +2,7 @@ use crate::common::Symbol;
 
 use super::AtomNode;
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub struct UnaryNode {
     pub op: Option<Symbol>,

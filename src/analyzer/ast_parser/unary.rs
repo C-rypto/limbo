@@ -8,7 +8,7 @@ use super::atom;
 
 pub fn parse(tokens: &mut TokenStream, current: &Token) -> Result<UnaryNode, ErrorType> {
     match &current.token_type {
-        TokenType::Identif(..) | TokenType::Literal(..) | TokenType::Symbols(Symbol::LParen) => {
+        TokenType::Identif(..) | TokenType::Literal(..) | TokenType::Symbols(Symbol::LParen) | TokenType::Symbols(Symbol::LBrace) => {
             return Ok(UnaryNode::new(None, atom::parse(tokens, current)?))
         }
         TokenType::Symbols(symbol) => match tokens.next() {

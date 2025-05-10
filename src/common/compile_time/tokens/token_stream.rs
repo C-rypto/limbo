@@ -56,17 +56,16 @@ impl TokenStream {
         self.push_front(self.prev());
     }
 
-	pub fn skip_white_space(&mut self) {
-		while let Some(next) = self.next() {
-			if let TokenType::WhiteSpace(..)|TokenType::EOL = next.token_type{
-				continue;
-			}
-			else {
-				self.undo();
-				break;
-			}
-		}
-	}
+    pub fn skip_white_space(&mut self) {
+        while let Some(next) = self.next() {
+            if let TokenType::WhiteSpace(..) | TokenType::EOL = next.token_type {
+                continue;
+            } else {
+                self.undo();
+                break;
+            }
+        }
+    }
 }
 
 impl Iterator for TokenStream {

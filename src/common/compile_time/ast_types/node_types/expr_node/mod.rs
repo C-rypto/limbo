@@ -8,6 +8,7 @@ mod unary_node;
 use crate::common::utils::Locatable;
 pub use {atom_node::*, comp_node::*, logic_node::*, math_node::*, term_node::*, unary_node::*};
 
+#[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, PartialEq)]
 pub struct ExprNode {
     pub inner: LogicNode,
