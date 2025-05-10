@@ -7,7 +7,7 @@ use crate::{
     },
 };
 
-pub fn parse(tokens: &mut TokenStream, current: &Token) -> Result<MathNode, ErrorType> {
+pub fn parse(tokens: &mut TokenStream, current: Token) -> Result<MathNode, ErrorType> {
     let left_hand = term::parse(tokens, current)?;
 
     if let Some(next) = tokens.next() {
@@ -40,7 +40,7 @@ fn parse_rest(tokens: &mut TokenStream, current: Token) -> Result<Option<MathRes
 
     let right_hand: MathNode;
     if let Some(next) = tokens.next() {
-        right_hand = parse(tokens, &next)?;
+        right_hand = parse(tokens, next)?;
     } else {
         return Err(CompileErr::IllegalEOF(Box::new(current.get_end_pos())).into());
     }

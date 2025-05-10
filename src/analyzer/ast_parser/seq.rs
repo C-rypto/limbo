@@ -7,6 +7,7 @@ pub fn parse(tokens: &mut TokenStream) -> Result<Sequence, ErrorType> {
 
     while let Some(next) = tokens.next() {
         seq.push_back(stmt::parse(tokens, next)?);
+        tokens.skip_white_space();
     }
 
     return Ok(seq);

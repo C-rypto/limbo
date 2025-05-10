@@ -6,7 +6,7 @@ use crate::common::{
 
 use super::math;
 
-pub fn parse(tokens: &mut TokenStream, current: &Token) -> Result<CompNode, ErrorType> {
+pub fn parse(tokens: &mut TokenStream, current: Token) -> Result<CompNode, ErrorType> {
     let left_hand = math::parse(tokens, current)?;
 
     if let Some(next) = tokens.next() {
@@ -44,7 +44,7 @@ pub fn parse_rest(tokens: &mut TokenStream, current: Token) -> Result<Option<Com
 
     let right_hand: CompNode;
     if let Some(next) = tokens.next() {
-        right_hand = parse(tokens, &next)?;
+        right_hand = parse(tokens, next)?;
     } else {
         return Err(CompileErr::IllegalEOF(Box::new(current.get_end_pos())).into());
     }

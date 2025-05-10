@@ -10,7 +10,7 @@ pub enum CompileErr {
     MissComma(Box<dyn Locatable>),
     MissSemicolon(Box<dyn Locatable>),
 
-	ExcessOut(Box<dyn Locatable>),
+    ExcessOut(Box<dyn Locatable>),
 }
 
 impl core::fmt::Display for CompileErr {
@@ -55,12 +55,12 @@ impl core::fmt::Display for CompileErr {
                 sth.locate(),
                 indent(1),
             ),
-			Self::ExcessOut(sth) => write!(
-				f,
-				"`{}`\n{}here is a excess out statement.",
-				sth.locate(),
-				indent(1),
-			)
+            Self::ExcessOut(sth) => write!(
+                f,
+                "`{}`\n{}here is a excess out statement.",
+                sth.locate(),
+                indent(1),
+            ),
         }
     }
 }

@@ -5,15 +5,15 @@ use colored::Colorize;
 pub enum Keyword {
     Var,
     Out,
-    // If,
-    // Else,
+    If,
+    Else,
 }
 
-pub static KEYWORD_PAIR: [(&'static str, Keyword); 2] = [
+pub static KEYWORD_PAIR: [(&'static str, Keyword); 4] = [
     ("var", Keyword::Var),
     ("out", Keyword::Out),
-    // ("if", Keyword::If),
-    // ("else", Keyword::Else),
+    ("if", Keyword::If),
+    ("else", Keyword::Else),
 ];
 
 impl Keyword {
@@ -34,8 +34,8 @@ impl core::fmt::Display for Keyword {
         match self {
             Self::Var => write!(f, "{}", "var".custom_color(KEYWORD_COLOR)),
             Self::Out => write!(f, "{}", "out".custom_color(KEYWORD_COLOR)),
-            // Self::If => write!(f, "{}", "if".custom_color(KEYWORD_COLOR)),
-            // Self::Else => write!(f, "{}", "else".custom_color(KEYWORD_COLOR)),
+            Self::If => write!(f, "{}", "if".custom_color(KEYWORD_COLOR)),
+            Self::Else => write!(f, "{}", "else".custom_color(KEYWORD_COLOR)),
         }
     }
 }

@@ -1,23 +1,35 @@
 Root	->	Seq
 
 Seq		->	Stmt Seq'
+
 Seq'	->	Stmt
 		|	$
 
-Stmt	->	var <idt> = Expr
+Stmt	->	var Assign
+		|	Assign
 		|	out Expr
 		|	Block
+		|	IfStmt
+
+Assign	->	<idt> = Expr
+
+IfStmt	->	if Expr Stmt IfRest
+
+IfRest	->	else Stmt
+		|	$
 
 Block	->	{ Stmt }
 
 Expr	->	Logic
 
 Logic	->	Comp Logic'
+
 Logic'	->	&& Logic
 		|	|| Logic
 		|	$
 
 Comp	->	Math Comp'
+
 Comp'	->	== Comp
 		|	!= Comp
 		|	> Comp

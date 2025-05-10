@@ -1,5 +1,7 @@
 use crate::common::{
-    compile_time::ast_types::node_types::BlockNode, utils::{Locatable, Location}, values::Value
+    compile_time::ast_types::node_types::BlockNode,
+    utils::{Locatable, Location},
+    values::Value,
 };
 
 use super::ExprNode;
@@ -32,7 +34,7 @@ pub enum AtomType {
     Val(Value),
     Idt(String),
     Expr(Box<ExprNode>),
-	Block(Box<BlockNode>)
+    Block(Box<BlockNode>),
 }
 
 impl core::fmt::Display for AtomNode {
@@ -47,7 +49,7 @@ impl core::fmt::Display for AtomType {
             Self::Val(val) => write!(f, "{}", val),
             Self::Idt(idt) => write!(f, "{}", idt),
             Self::Expr(exp) => write!(f, "{}", exp),
-			Self::Block(blc) => write!(f, "{:?}", blc)
+            Self::Block(blc) => write!(f, "{:?}", blc),
         }
     }
 }

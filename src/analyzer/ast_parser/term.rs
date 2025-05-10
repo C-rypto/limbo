@@ -6,7 +6,7 @@ use crate::common::{
 
 use super::unary;
 
-pub fn parse(tokens: &mut TokenStream, current: &Token) -> Result<TermNode, ErrorType> {
+pub fn parse(tokens: &mut TokenStream, current: Token) -> Result<TermNode, ErrorType> {
     let left_hand: UnaryNode;
     match &current.token_type {
         TokenType::Identif(..) | TokenType::Literal(..) | TokenType::Symbols(..) => {
@@ -49,7 +49,7 @@ fn parse_rest(tokens: &mut TokenStream, current: Token) -> Result<Option<TermRes
 
     let rest: TermNode;
     if let Some(next) = tokens.next() {
-        rest = parse(tokens, &next)?;
+        rest = parse(tokens, next)?;
     } else {
         return Err(CompileErr::IllegalEOF(Box::new(current.get_end_pos())).into());
     }

@@ -1,3 +1,4 @@
+pub mod assign;
 pub mod atom;
 pub mod block;
 pub mod comp;

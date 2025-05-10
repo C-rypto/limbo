@@ -11,3 +11,7 @@ impl Root {
         Self { nodes }
     }
 }
+
+pub trait ToRoot {
+    fn to_root(self) -> Root;
+}

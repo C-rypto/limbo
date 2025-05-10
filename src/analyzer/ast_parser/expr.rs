@@ -4,7 +4,7 @@ use crate::common::{
 
 use super::logic;
 
-pub fn parse(tokens: &mut TokenStream, current: &Token) -> Result<ExprNode, ErrorType> {
+pub fn parse(tokens: &mut TokenStream, current: Token) -> Result<ExprNode, ErrorType> {
     return Ok(ExprNode {
         inner: logic::parse(tokens, current)?,
     });

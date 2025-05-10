@@ -18,8 +18,28 @@ impl Environment {
         }
     }
 
-    pub fn push(&mut self, idt: String, val: Value) {
+	pub fn contains(&self, target: &String) -> bool {
+		self.table.get(target) != None
+	}
+
+    pub fn insert(&mut self, idt: String, val: Value) {
         self.table.insert(idt, val);
+    }
+
+    pub fn overwrite(&mut self, idt: String, val: Value) -> bool {
+        if self.contains(&idt) {
+			self.insert(idt, val);
+			return true;
+		}
+		else {
+			match self.prev.as_mut() {
+				Some(prev) => {
+					// let mut prev = *prev;
+					prev.overwrite(idt, val)
+				}
+				None => return false,
+			}
+		}
     }
 
     pub fn find(&self, target: &String) -> Option<Value> {
